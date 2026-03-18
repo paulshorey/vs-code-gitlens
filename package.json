@@ -3013,14 +3013,16 @@
 					"gitlens.showWelcomeOnInstall": {
 						"type": "boolean",
 						"default": false,
-						"markdownDescription": "Specifies whether to show the Welcome (Quick Setup) experience on first install",
+						"deprecationMessage": "Deprecated. The GitLens views are now always shown.",
+						"markdownDescription": "Deprecated. The GitLens views are now always shown.",
 						"scope": "window",
 						"order": 10
 					},
 					"gitlens.showWhatsNewAfterUpgrades": {
 						"type": "boolean",
 						"default": true,
-						"markdownDescription": "Specifies whether to show the What's New notification after upgrading to new feature releases",
+						"deprecationMessage": "Deprecated. Upgrade/onboarding notifications are disabled in this fork.",
+						"markdownDescription": "Deprecated. Upgrade/onboarding notifications are disabled in this fork.",
 						"scope": "window",
 						"order": 20
 					},
@@ -5648,6 +5650,10 @@
 					"when": "false"
 				},
 				{
+					"command": "gitlens.setViewsLayout",
+					"when": "false"
+				},
+				{
 					"command": "gitlens.compareWith",
 					"when": "gitlens:enabled"
 				},
@@ -7341,7 +7347,7 @@
 			"view/title": [
 				{
 					"command": "gitlens.closeWelcomeView",
-					"when": "view == gitlens.views.welcome",
+					"when": "false",
 					"group": "navigation@1"
 				},
 				{

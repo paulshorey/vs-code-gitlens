@@ -1,22 +1,13 @@
 'use strict';
-import { commands, window } from 'vscode';
+import { commands } from 'vscode';
 import { viewsConfigKeys } from '../configuration';
 import { command, Command, Commands } from './common';
 
-const viewIds = [
+const gitlensViewIds = [
 	'gitlens.views.welcome',
 	'gitlens.views.kylincommitsRelevant',
 	...viewsConfigKeys.map(view => `gitlens.views.${view}`),
 ];
-
-enum ViewsLayout {
-	GitLens = 'gitlens',
-	SourceControl = 'scm',
-}
-
-export interface SetViewsLayoutCommandArgs {
-	layout: ViewsLayout;
-}
 
 @command()
 export class SetViewsLayoutCommand extends Command {
@@ -24,64 +15,24 @@ export class SetViewsLayoutCommand extends Command {
 		super(Commands.SetViewsLayout);
 	}
 
-	async execute(args?: SetViewsLayoutCommandArgs) {
-		let layout = args?.layout;
-		if (layout == null) {
-			const pick = await window.showQuickPick(
-				[
-					{
-						label: 'Source Control Layout',
-						description: '',
-						detail: 'Shows all the views together on the Source Control side bar',
-						layout: ViewsLayout.SourceControl,
-					},
-					{
-						label: 'GitLens Layout',
-						description: '(default)',
-						detail: 'Shows all the views together on the GitLens side bar',
-						layout: ViewsLayout.GitLens,
-					},
-				],
-				{
-					placeHolder: 'Choose a GitLens views layout',
-				},
-			);
-			if (pick == null) return;
-
-			layout = pick.layout;
-		}
-
-		switch (layout) {
-			case ViewsLayout.GitLens:
+	async execute() {
+		try {
+			// Run twice to avoid partial moves in VS Code view state.
+			let count = 0;
+			while (count++ < 2) {
+				await commands.executeCommand('vscode.moveViews', {
+					viewIds: gitlensViewIds,
+					destinationId: 'workbench.view.extension.gitlens',
+				});
+			}
+		} catch {
+			for (const viewId of gitlensViewIds) {
 				try {
-					// Because of https://github.com/microsoft/vscode/issues/105774, run the command twice which seems to fix things
-					let count = 0;
-					while (count++ < 2) {
-						void (await commands.executeCommand('vscode.moveViews', {
-							viewIds,
-							destinationId: 'workbench.view.extension.gitlens',
-						}));
-					}
+					await commands.executeCommand(`${viewId}.resetViewLocation`);
 				} catch {}
-
-				break;
-			case ViewsLayout.SourceControl:
-				try {
-					// Because of https://github.com/microsoft/vscode/issues/105774, run the command twice which seems to fix things
-					let count = 0;
-					while (count++ < 2) {
-						void (await commands.executeCommand('vscode.moveViews', {
-							viewIds,
-							destinationId: 'workbench.view.scm',
-						}));
-					}
-				} catch {
-					for (const viewId of viewIds) {
-						void (await commands.executeCommand(`${viewId}.resetViewLocation`));
-					}
-				}
-
-				break;
+			}
 		}
+
+		await commands.executeCommand('workbench.view.extension.gitlens');
 	}
 }

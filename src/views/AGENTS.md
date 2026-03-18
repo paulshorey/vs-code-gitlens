@@ -14,4 +14,5 @@ Tree views for the extension. Base implementation: `viewBase.ts`. Shared command
 
 - View definitions and default locations come from `package.json`
 - `ViewBase.show()` is the shared path used by commands like `gitlens.showSearchAndCompareView`
+- This fork now treats top-level views as always visible; view placement is repaired on activation/show
 - Search & Compare persists pinned items and keep-results state in workspace storage

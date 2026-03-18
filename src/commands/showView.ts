@@ -1,6 +1,5 @@
 'use strict';
 import { commands } from 'vscode';
-import { ContextKeys, setContext, SyncedState } from '../constants';
 import { Container } from '../container';
 import { command, Command, CommandContext, Commands } from './common';
 
@@ -52,9 +51,7 @@ export class ShowViewCommand extends Command {
 			case Commands.ShowTagsView:
 				return Container.tagsView.show();
 			case Commands.ShowWelcomeView:
-				await setContext(ContextKeys.ViewsWelcomeVisible, true);
-				void Container.context.globalState.update(SyncedState.WelcomeViewVisible, true);
-				void (await commands.executeCommand('gitlens.views.welcome.focus'));
+				return commands.executeCommand('gitlens.views.welcome.focus');
 		}
 
 		return Promise.resolve(undefined);
