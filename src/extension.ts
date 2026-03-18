@@ -130,8 +130,9 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 	}
 
 	if (previousVersion == null) {
-		void context.globalState.update(SyncedState.WelcomeViewVisible, true);
-		void setContext(ContextKeys.ViewsWelcomeVisible, true);
+		const showWelcomeOnInstall = workspace.getConfiguration('gitlens').get<boolean>('showWelcomeOnInstall', false);
+		void context.globalState.update(SyncedState.WelcomeViewVisible, showWelcomeOnInstall);
+		void setContext(ContextKeys.ViewsWelcomeVisible, showWelcomeOnInstall);
 	} else {
 		void setContext(
 			ContextKeys.ViewsWelcomeVisible,

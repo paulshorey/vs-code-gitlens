@@ -524,7 +524,17 @@ export abstract class ViewBase<
 	@log()
 	async show(options?: { preserveFocus?: boolean }) {
 		try {
-			void (await commands.executeCommand(`${this.id}.focus`, options));
+			await commands.executeCommand(`${this.id}.focus`, options);
+
+			// If the view still isn't visible, repair its location and retry. This helps
+			// recover from stale view state after updates/reinstalls without overriding
+			// user customizations when the focus command succeeds normally.
+			if (this.tree != null && !this.tree.visible) {
+				try {
+					await commands.executeCommand(`${this.id}.resetViewLocation`);
+					await commands.executeCommand(`${this.id}.focus`, options);
+				} catch {}
+			}
 		} catch (ex) {
 			Logger.error(ex);
 		}

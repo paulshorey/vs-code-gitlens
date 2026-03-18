@@ -1,12 +1,17 @@
 # commands
 
-Command handlers; registered in `commands.ts`. Entry: `common.ts` (pickers, state).
+Command handlers registered through `commands.ts`.
 
-- **common.ts** – Shared logic, state types, command helpers
-- **gitCommands.ts** – Git command palette; **gitCommands.actions.ts** – Git actions
-- **git/** – Git-specific: fetch, pull, push, stash, rebase, merge, etc.
-- **diffWith*.ts** – Diff commands (previous, next, working, revision)
-- **showQuick*.ts** – Quick pick commands (commit, file history, stash)
-- **open*OnRemote.ts** – Open file/commit/repo on GitHub/GitLab
-- **compareWith.ts**, **diffWith.ts** – Comparison flows
-- **quickCommand.ts**, **quickCommand.steps.ts**, **quickCommand.buttons.ts** – Guided commands
+## Important Files
+
+- `common.ts` - command ids, shared helpers, command base class
+- `showView.ts` - routes `gitlens.show*View` commands to the matching tree view
+- `setViewsLayout.ts` - moves GitLens views between the GitLens container and Source Control
+- `compareWith.ts`, `diffWith.ts`, `diffWith*.ts` - compare and diff entry points
+- `showQuick*.ts`, `quickCommand*.ts` - quick pick driven flows
+- `git/` - git action commands (fetch, pull, push, stash, rebase, merge, etc.)
+
+## View Notes
+
+- `gitlens.showSearchAndCompareView` should always resolve to `Container.searchAndCompareView.show()`
+- Layout changes should keep related views together to avoid split-pane confusion

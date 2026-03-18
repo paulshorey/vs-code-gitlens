@@ -1,35 +1,27 @@
 # src
 
-Extension source. Entry: `extension.ts`. Core singleton: `container.ts`.
+Extension source. Entry point: `extension.ts`. Shared singleton: `container.ts`.
 
-## Folders
+## Main Areas
 
 | Folder | Purpose |
 |--------|---------|
-| **commands/** | Command handlers (diff, blame, fetch, quick pick, etc.) |
-| **git/** | Git ops, shell, parsers, models, remotes |
-| **views/** | Sidebar tree views + Kylin `commits-panel/` |
-| **webviews/** | Rebase editor, settings, welcome; CSP via webpack |
-| **annotations/** | Blame, heatmap, changes in editor gutter |
-| **hovers/** | Line hover blame details |
-| **quickpicks/** | Quick pick items for commits, repos, refs |
-| **codelens/** | Code lens provider (authorship, recent change) |
-| **api/** | Public API (`gitlens.d.ts`), action runners |
-| **github/** | GitHub GraphQL API (avatars, PRs) |
-| **controllers/** | Kylin: mainController for chart commands |
-| **services/** | Kylin: Commit, Configuration, Output |
-| **system/** | Utils: string, array, date, promise, decorators |
-| **terminal/** | Terminal link provider (commit/branch links) |
-| **trackers/** | Document/line/blame tracking |
-| **utils/** | isBlank, isEmpty, constants |
-| **vsls/** | Live Share integration |
-| **@types/** | VS Code/Git API type declarations |
-| **statusbar/** | Status bar blame controller |
+| `commands/` | Command handlers, including view show/layout commands |
+| `git/` | Git execution, models, parsers, remotes |
+| `views/` | Tree views such as `Search & Compare` |
+| `webviews/` | Welcome/settings/rebase webviews |
+| `controllers/`, `services/` | Kylin-specific chart panels |
+| `annotations/`, `hovers/`, `codelens/`, `statusbar/` | Editor UI integrations |
 
-## Key Files
+## Important Files
 
-- **extension.ts** – Activates extension, registers Kylin commands
-- **container.ts** – DI: gitService, config, views, actionRunners
-- **commands.ts** – Command registration, enum
-- **configuration.ts** – Settings access
-- **constants.ts** – Context keys, glyphs
+- `extension.ts` wires activation, git checks, welcome state, and command registration
+- `container.ts` owns view instances like `searchAndCompareView`
+- `configuration.ts` exposes `gitlens.*` settings
+- `constants.ts` defines context keys used by menus and views
+
+## View Notes
+
+- Manifest contributions are in `package.json`
+- Runtime tree behavior is in `views/`
+- `Search & Compare` is the key compare/search pane and is shown via `gitlens.showSearchAndCompareView`

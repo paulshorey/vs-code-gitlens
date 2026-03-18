@@ -1,27 +1,29 @@
 # GitLens Codebase Overview
 
-VS Code extension for Git visualization (blame, history, diff). Kylin fork of eamodio/vscode-gitlens v11.7.0.
+VS Code extension forked from `eamodio/vscode-gitlens` with Kylin-specific chart panels.
 
-## Child Folders & Key Files
+## Key Files
 
-| Folder / File | Purpose |
-|---------------|---------|
-| **src/** | Main extension source; see `src/AGENTS.md` |
-| **resources/** | Chart.js bundles, logo; used by Kylin commit chart webviews |
-| **scripts/** | Empty (build scripts removed) |
-| **images/** | Extension icons, view SVGs, theme assets |
-| **.vscode/** | Launch config, tasks |
-| **package.json** | Extension manifest, commands, activation events |
-| **webpack.config.js** | Bundles extension + webviews with CSP |
+| Path | Purpose |
+|------|---------|
+| `package.json` | Extension manifest: commands, settings, menus, view containers, default view visibility |
+| `src/extension.ts` | Activation, welcome/upgrade flow, git availability checks, command registration |
+| `src/container.ts` | Shared services and singleton view instances |
+| `src/views/` | Tree views, including `Search & Compare` |
+| `src/commands/` | Command handlers such as show/focus and view layout commands |
+| `resources/` | Static assets for webviews/charts |
 
-## Flow
+## Activation Flow
 
-```
-extension.ts → Container → gitService, config, views
-            → mainController → Commit.ts → chart panels
-            → registerCommands → commands/*.ts
-```
+`extension.ts` initializes Git, sets context keys, creates the `Container`, then registers commands and views.
 
-## Documentation - AGENTS.md files
+## View Model
 
-Most folders have an AGENTS.md file - with some minimal documentation. Keep this documentation up to date. If you can improve it, please improve with your latest understanding about that folder. Keep it concise. Remove any inconsistent or outdated content.
+- View contributions live in `package.json`
+- Tree view behavior lives in `src/views/`
+- `gitlens.showSearchAndCompareView` routes through `src/commands/showView.ts`
+- Default layout is the GitLens activity bar container; users can still move views with VS Code
+
+## Docs
+
+Keep nearby `AGENTS.md` files concise and aligned with the current code.

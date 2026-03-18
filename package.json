@@ -3,7 +3,7 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(Kylin Modified) Supercharge the Git capabilities built into IDE — Visualize code authorship at a glance via Git blame annotations and code lens, seamlessly navigate and explore Git repositories, gain valuable insights via powerful comparison commands, and so much more",
-	"version": "0.1.10",
+	"version": "0.1.12",
 	"author": {
 		"name": "Eric Amodio",
 		"email": "eamodio@gmail.com"
@@ -9954,9 +9954,7 @@
 					"contextualTitle": "GitLens",
 					"icon": "images/gitlens-activitybar.svg",
 					"visibility": "visible"
-				}
-			],
-			"scm": [
+				},
 				{
 					"id": "gitlens.views.commits",
 					"name": "%Commits%",
@@ -9995,7 +9993,7 @@
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GitLens",
 					"icon": "images/views/history.svg",
-					"visibility": "hidden"
+					"visibility": "visible"
 				},
 				{
 					"id": "gitlens.views.branches",
@@ -10011,7 +10009,7 @@
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GitLens",
 					"icon": "images/views/remotes.svg",
-					"visibility": "collapsed"
+					"visibility": "visible"
 				},
 				{
 					"id": "gitlens.views.stashes",
@@ -10027,7 +10025,7 @@
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GitLens",
 					"icon": "images/views/tags.svg",
-					"visibility": "collapsed"
+					"visibility": "visible"
 				},
 				{
 					"id": "gitlens.views.contributors",
@@ -10035,7 +10033,7 @@
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GitLens",
 					"icon": "images/views/contributors.svg",
-					"visibility": "hidden"
+					"visibility": "visible"
 				},
 				{
 					"id": "gitlens.views.searchAndCompare",
@@ -10043,7 +10041,7 @@
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GitLens",
 					"icon": "images/views/search.svg",
-					"visibility": "collapsed"
+					"visibility": "visible"
 				}
 			]
 		}
@@ -10055,7 +10053,7 @@
 		"bundle": "webpack --mode production",
 		"clean": "npx rimraf .eslintcache* tsconfig*.tsbuildinfo",
 		"lint": "eslint src/**/*.ts --fix",
-		"pack": "vsce package --no-yarn",
+		"pack": "npm run build && npm version patch --no-git-tag-version && vsce package",
 		"pretty": "prettier --config .prettierrc --loglevel warn --write .",
 		"rebuild": "pnpm run reset && pnpm run build",
 		"reset": "pnpm run clean && pnpm install --frozen-lockfile",

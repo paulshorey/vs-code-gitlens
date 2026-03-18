@@ -3,6 +3,12 @@ import { commands, window } from 'vscode';
 import { viewsConfigKeys } from '../configuration';
 import { command, Command, Commands } from './common';
 
+const viewIds = [
+	'gitlens.views.welcome',
+	'gitlens.views.kylincommitsRelevant',
+	...viewsConfigKeys.map(view => `gitlens.views.${view}`),
+];
+
 enum ViewsLayout {
 	GitLens = 'gitlens',
 	SourceControl = 'scm',
@@ -25,13 +31,13 @@ export class SetViewsLayoutCommand extends Command {
 				[
 					{
 						label: 'Source Control Layout',
-						description: '(default)',
+						description: '',
 						detail: 'Shows all the views together on the Source Control side bar',
 						layout: ViewsLayout.SourceControl,
 					},
 					{
 						label: 'GitLens Layout',
-						description: '',
+						description: '(default)',
 						detail: 'Shows all the views together on the GitLens side bar',
 						layout: ViewsLayout.GitLens,
 					},
@@ -52,7 +58,7 @@ export class SetViewsLayoutCommand extends Command {
 					let count = 0;
 					while (count++ < 2) {
 						void (await commands.executeCommand('vscode.moveViews', {
-							viewIds: viewsConfigKeys.map(view => `gitlens.views.${view}`),
+							viewIds,
 							destinationId: 'workbench.view.extension.gitlens',
 						}));
 					}
@@ -65,13 +71,13 @@ export class SetViewsLayoutCommand extends Command {
 					let count = 0;
 					while (count++ < 2) {
 						void (await commands.executeCommand('vscode.moveViews', {
-							viewIds: viewsConfigKeys.map(view => `gitlens.views.${view}`),
+							viewIds,
 							destinationId: 'workbench.view.scm',
 						}));
 					}
 				} catch {
-					for (const view of viewsConfigKeys) {
-						void (await commands.executeCommand(`gitlens.views.${view}.resetViewLocation`));
+					for (const viewId of viewIds) {
+						void (await commands.executeCommand(`${viewId}.resetViewLocation`));
 					}
 				}
 
