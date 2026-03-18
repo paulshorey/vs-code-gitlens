@@ -1,7 +1,6 @@
 .github/**
 .vscode/**
 .vscode-clean/**
-.yarn/**
 dist/webviews/*.css
 emoji/**
 images/docs/**
@@ -21,10 +20,9 @@ AGENTS.md
 **/AGENTS.md
 .prettierignore
 .prettierrc
-.yarnrc
 tsconfig.eslint.json
 tsconfig.json
 tsconfig.webviews.json
 tsconfig.tsbuildinfo
 webpack.config.js
-yarn.lock
+pnpm-lock.yaml

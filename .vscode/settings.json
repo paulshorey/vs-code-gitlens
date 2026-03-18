@@ -2,7 +2,7 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit"
 	},
-	"eslint.packageManager": "yarn",
+	"eslint.packageManager": "pnpm",
 	"files.associations": {
 		".eslintrc.json": "jsonc"
 	},
@@ -34,7 +34,7 @@
 		}
 	],
 	"gitlens.advanced.blame.customArguments": ["--ignore-revs-file", ".gitignore-revs"],
-	"npm.packageManager": "yarn",
+	"npm.packageManager": "pnpm",
 	"prettier.requireConfig": true,
 	"search.exclude": {
 		"**/dist": true

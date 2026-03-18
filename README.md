@@ -15,8 +15,8 @@ VS Code extension for Git visualization. Fork of eamodio/vscode-gitlens (v11.7.0
 ## Build
 
 ```bash
-yarn install
-yarn run bundle
+pnpm install
+pnpm run bundle
 ```
 
 ## Run
