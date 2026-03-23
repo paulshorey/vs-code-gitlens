@@ -4,12 +4,7 @@ import { configuration, SearchAndCompareViewConfig, ViewFilesLayout } from '../c
 import { ContextKeys, NamedRef, PinnedItem, PinnedItems, setContext, WorkspaceState } from '../constants';
 import { Container } from '../container';
 import { GitLog, GitRevision, SearchPattern } from '../git/git';
-import {
-	CommandQuickPickItem,
-	ReferencePicker,
-	ReferencesQuickPickIncludes,
-	RepositoryPicker,
-} from '../quickpicks';
+import { ReferencePicker, ReferencesQuickPickIncludes, RepositoryPicker } from '../quickpicks';
 import { debug, gate, Iterables, log, Promises } from '../system';
 import {
 	CompareResultsNode,
@@ -137,24 +132,16 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		const selectedRef = this.comparePicker?.selectedRef;
 		if (selectedRef == null) return;
 
-		if (repoPath == null) {
-			repoPath = selectedRef.repoPath;
-		} else if (repoPath !== selectedRef.repoPath) {
-			// If we don't have a matching repoPath, then start over
-			void this.selectForCompare(repoPath, ref);
-
-			return;
-		}
+		const effectiveRepoPath = repoPath ?? selectedRef.repoPath;
 
 		if (ref == null) {
 			const pick = await ReferencePicker.show(
-				repoPath,
+				effectiveRepoPath,
 				`Compare ${this.getRefName(selectedRef.ref)} with`,
 				'Choose a reference to compare with',
 				{
 					allowEnteringRefs: true,
 					picked: typeof selectedRef.ref === 'string' ? selectedRef.ref : selectedRef.ref.ref,
-					// checkmarks: true,
 					include:
 						ReferencesQuickPickIncludes.BranchesAndTags |
 						ReferencesQuickPickIncludes.HEAD |
@@ -167,7 +154,6 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 					await this.view.show();
 					await this.view.reveal(this.comparePicker, { focus: true, select: true });
 				}
-
 				return;
 			}
 
@@ -175,41 +161,39 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		}
 
 		this.removeComparePicker();
-		void (await this.view.compare(repoPath, selectedRef.ref, ref));
+		void (await this.view.compare(effectiveRepoPath, selectedRef.ref, ref));
 	}
 
-	async selectForCompare(repoPath?: string, ref?: string | NamedRef, options?: { prompt?: boolean }) {
+	async selectForCompare(repoPath?: string, ref?: string | NamedRef) {
+		// Step 1: Pick a repository (always show picker when no repoPath provided)
 		if (repoPath == null) {
 			const pick = await RepositoryPicker.show('Compare');
-			if (pick instanceof CommandQuickPickItem) {
-				void (await pick.execute());
+			if (pick == null) {
+				await this.triggerChange();
 				return;
 			}
-			repoPath = pick?.repoPath;
+			repoPath = pick.repoPath;
 		}
-		if (repoPath == null) return;
 
 		this.removeComparePicker(true);
 
-		let prompt = options?.prompt ?? false;
-		let ref2;
+		// Step 2: Pick the first reference
+		let ref2: string | undefined;
 		if (ref == null) {
-			const pick = await ReferencePicker.show(repoPath, 'Compare', 'Choose a reference to compare', {
+			const refPick = await ReferencePicker.show(repoPath, 'Compare', 'Choose a reference to compare', {
 				allowEnteringRefs: { ranges: true },
-				// checkmarks: false,
 				include:
 					ReferencesQuickPickIncludes.BranchesAndTags |
 					ReferencesQuickPickIncludes.HEAD |
 					ReferencesQuickPickIncludes.WorkingTree,
 				sort: { branches: { current: true }, tags: {} },
 			});
-			if (pick == null) {
+			if (refPick == null) {
 				await this.triggerChange();
-
 				return;
 			}
 
-			ref = pick.ref;
+			ref = refPick.ref;
 
 			if (GitRevision.isRange(ref)) {
 				const range = GitRevision.splitRange(ref);
@@ -218,24 +202,26 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 					ref2 = range.ref2 || 'HEAD';
 				}
 			}
-
-			prompt = true;
 		}
 
+		// Show the picker node in the tree as visual feedback
 		this.comparePicker = new ComparePickerNode(this.view, this, {
 			label: this.getRefName(ref),
-			repoPath: repoPath,
-			ref: ref,
+			repoPath,
+			ref,
 		});
 		this.children.splice(0, 0, this.comparePicker);
 		void setContext(ContextKeys.ViewsCanCompare, true);
 
 		await this.triggerChange();
-
 		await this.view.reveal(this.comparePicker, { focus: false, select: true });
 
-		if (prompt) {
-			await this.compareWithSelected(repoPath, ref2);
+		// Step 3: Pick the second reference (or use range if already provided)
+		if (ref2 != null) {
+			this.removeComparePicker();
+			void (await this.view.compare(repoPath, ref, ref2));
+		} else {
+			await this.compareWithSelected();
 		}
 	}
 
@@ -323,8 +309,12 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 			commands.registerCommand(this.getQualifiedCommand('pin'), this.pin, this),
 			commands.registerCommand(this.getQualifiedCommand('unpin'), this.unpin, this),
 			commands.registerCommand(this.getQualifiedCommand('swapComparison'), this.swapComparison, this),
-			commands.registerCommand(this.getQualifiedCommand('selectForCompare'), this.selectForCompare, this),
-			commands.registerCommand(this.getQualifiedCommand('compareWithSelected'), this.compareWithSelected, this),
+			commands.registerCommand(this.getQualifiedCommand('selectForCompare'), () => this.selectForCompare(), this),
+			commands.registerCommand(
+				this.getQualifiedCommand('compareWithSelected'),
+				() => this.compareWithSelected(),
+				this,
+			),
 
 			commands.registerCommand(
 				this.getQualifiedCommand('setFilesFilterOnLeft'),
@@ -399,8 +389,8 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 		void this.ensureRoot().compareWithSelected(repoPath, ref);
 	}
 
-	selectForCompare(repoPath?: string, ref?: string | NamedRef, options?: { prompt?: boolean }) {
-		void this.ensureRoot().selectForCompare(repoPath, ref, options);
+	selectForCompare(repoPath?: string, ref?: string | NamedRef) {
+		void this.ensureRoot().selectForCompare(repoPath, ref);
 	}
 
 	async search(
@@ -431,7 +421,7 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 
 		const labels = { label: `Results ${typeof label === 'string' ? label : label.label}`, queryLabel: label };
 		if (updateNode != null) {
-			await updateNode.edit({ pattern: search, labels: labels, log: results });
+			await updateNode.edit({ pattern: search, labels, log: results });
 
 			return;
 		}

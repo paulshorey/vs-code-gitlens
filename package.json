@@ -13,6 +13,10 @@
 		"url": "https://github.com/paulshorey/gitlens"
 	},
 	"publisher": "KylinIDETeam",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paulshorey/gitlens"
+	},
 	"license": "UNLICENSED",
 	"engines": {
 		"vscode": "^1.62.0"

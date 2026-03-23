@@ -17,14 +17,10 @@ export class SetViewsLayoutCommand extends Command {
 
 	async execute() {
 		try {
-			// Run twice to avoid partial moves in VS Code view state.
-			let count = 0;
-			while (count++ < 2) {
-				await commands.executeCommand('vscode.moveViews', {
-					viewIds: gitlensViewIds,
-					destinationId: 'workbench.view.extension.gitlens',
-				});
-			}
+			await commands.executeCommand('vscode.moveViews', {
+				viewIds: gitlensViewIds,
+				destinationId: 'workbench.panel.extension.gitlens',
+			});
 		} catch {
 			for (const viewId of gitlensViewIds) {
 				try {
@@ -33,6 +29,6 @@ export class SetViewsLayoutCommand extends Command {
 			}
 		}
 
-		await commands.executeCommand('workbench.view.extension.gitlens');
+		await commands.executeCommand('workbench.panel.extension.gitlens');
 	}
 }
