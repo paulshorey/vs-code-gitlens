@@ -3,12 +3,16 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(Kylin Modified) Supercharge the Git capabilities built into IDE — Visualize code authorship at a glance via Git blame annotations and code lens, seamlessly navigate and explore Git repositories, gain valuable insights via powerful comparison commands, and so much more",
-	"version": "0.1.16",
+	"version": "0.1.19",
 	"author": {
 		"name": "Eric Amodio",
 		"email": "eamodio@gmail.com"
 	},
 	"publisher": "KylinIDETeam",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paulshorey/gitlens"
+	},
 	"license": "UNLICENSED",
 	"engines": {
 		"vscode": "^1.62.0"
@@ -9917,7 +9921,7 @@
 			}
 		],
 		"viewsContainers": {
-			"activitybar": [
+			"panel": [
 				{
 					"id": "gitlens",
 					"title": "GitLens",

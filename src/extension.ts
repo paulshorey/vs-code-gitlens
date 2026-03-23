@@ -252,13 +252,10 @@ const startupViewIds = [
 
 async function ensureVisibleViews(_context: ExtensionContext) {
 	try {
-		let count = 0;
-		while (count++ < 2) {
-			await commands.executeCommand('vscode.moveViews', {
-				viewIds: startupViewIds,
-				destinationId: 'workbench.view.extension.gitlens',
-			});
-		}
+		await commands.executeCommand('vscode.moveViews', {
+			viewIds: startupViewIds,
+			destinationId: 'workbench.panel.extension.gitlens',
+		});
 	} catch {
 		for (const viewId of startupViewIds) {
 			try {
@@ -268,6 +265,6 @@ async function ensureVisibleViews(_context: ExtensionContext) {
 	}
 
 	try {
-		await commands.executeCommand('workbench.view.extension.gitlens');
+		await commands.executeCommand('workbench.panel.extension.gitlens');
 	} catch {}
 }
