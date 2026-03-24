@@ -84,10 +84,15 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		if (this.children.length === 0) return;
 
 		this.removeComparePicker(true);
-		const index = this._children!.findIndex(c => !c.pinned);
-		if (index !== -1) {
-			this._children!.splice(index, this._children!.length);
+
+		for (const child of this._children!) {
+			if (child instanceof ComparePickerNode) continue;
+			if (child.pinned) {
+				void child.unpin();
+			}
 		}
+
+		this._children!.length = 0;
 
 		if (!silent) {
 			this.view.triggerNodeChange();
@@ -110,6 +115,12 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		if (index === -1) return;
 
 		this.children.splice(index, 1);
+
+		if (node instanceof CompareResultsNode || node instanceof SearchResultsNode) {
+			if (node.pinned) {
+				void node.unpin();
+			}
+		}
 
 		this.view.triggerNodeChange();
 	}
@@ -504,6 +515,10 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 
 		const root = this.ensureRoot();
 		root.addOrReplace(results, !this.keepResults);
+
+		if (!results.pinned) {
+			await results.pin();
+		}
 
 		setImmediate(() => this.reveal(results, options));
 	}

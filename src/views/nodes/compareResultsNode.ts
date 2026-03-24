@@ -57,7 +57,7 @@ export class CompareResultsNode extends ViewNode<SearchAndCompareView> {
 	}
 
 	get canDismiss(): boolean {
-		return !this.pinned;
+		return true;
 	}
 
 	private readonly _order: number = Date.now();
