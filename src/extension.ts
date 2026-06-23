@@ -261,25 +261,23 @@ async function ensureVisibleViews(context: ExtensionContext) {
 	await context.globalState.update(SyncedState.WelcomeViewVisible, true);
 	await setContext(ContextKeys.ViewsWelcomeVisible, true);
 
-	try {
-		let count = 0;
-		while (count++ < 2) {
-			await commands.executeCommand('vscode.moveViews', {
-				viewIds: startupViewIds,
-				destinationId: 'workbench.view.extension.gitlens',
-			});
-		}
-	} catch {
+	// NOTE: this used to force every GitLens view into the `gitlens` activity-bar container
+	// on every activation via the undocumented `vscode.moveViews` command. That command's
+	// behavior changed in recent VS Code / Cursor builds (notably the Cursor 3.0 "New
+	// Interface" rework) and could leave the view blank or relocated; it also overrode any
+	// layout the user chose (e.g. dragging the view to the Panel). The views are already
+	// contributed to the `gitlens` container declaratively in package.json, so no forced
+	// relocation is needed for them to render. We only attempt a one-time location reset as
+	// a recovery from corrupted/stale view state after an update, and never steal focus.
+	const recoveryKey = `gitlens:viewLocationRecovery:${context.extension.packageJSON.version}`;
+	if (context.globalState.get<boolean>(recoveryKey) !== true) {
+		await context.globalState.update(recoveryKey, true);
 		for (const viewId of startupViewIds) {
 			try {
 				await commands.executeCommand(`${viewId}.resetViewLocation`);
 			} catch {}
 		}
 	}
-
-	try {
-		await commands.executeCommand('workbench.view.extension.gitlens');
-	} catch {}
 }
 
 async function showWelcomeOrWhatsNew(context: ExtensionContext, version: string, previousVersion: string | undefined) {
