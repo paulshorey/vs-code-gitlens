@@ -1354,6 +1354,8 @@ export class GitService implements Disposable {
 			branchesPromise = load.call(this);
 
 			if (this.useCaching) {
+				// Defensive: never let a rejected promise stick in the cache
+				void branchesPromise.catch(() => this._branchesCache.delete(repoPath));
 				this._branchesCache.set(repoPath, branchesPromise);
 
 				if (!(await this.getRepository(repoPath))?.supportsChangeEvents) {
@@ -3767,6 +3769,8 @@ export class GitService implements Disposable {
 			tagsPromise = load.call(this);
 
 			if (this.useCaching) {
+				// Defensive: never let a rejected promise stick in the cache
+				void tagsPromise.catch(() => this._tagsCache.delete(repoPath));
 				this._tagsCache.set(repoPath, tagsPromise);
 
 				if (!(await this.getRepository(repoPath))?.supportsChangeEvents) {

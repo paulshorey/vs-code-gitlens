@@ -56,6 +56,11 @@ export class CompareResultsNode extends ViewNode<SearchAndCompareView> {
 		return CompareResultsNode.getId(this.repoPath, this._ref.ref, this._compareWith.ref, this._instanceId);
 	}
 
+	// Stable identity for a comparison (independent of instance), used to detect duplicates
+	get comparisonId(): string {
+		return CompareResultsNode.getPinnableId(this.repoPath, this._ref.ref, this._compareWith.ref);
+	}
+
 	get canDismiss(): boolean {
 		return !this.pinned;
 	}

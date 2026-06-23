@@ -1,12 +1,14 @@
 'use strict';
 import { CancellationTokenSource, Disposable, QuickPick, window } from 'vscode';
 import { GitActions } from '../commands';
-import { getBranchesAndOrTags, getValidateGitReferenceFn, QuickCommandButtons } from '../commands/quickCommand';
+import { getValidateGitReferenceFn, QuickCommandButtons } from '../commands/quickCommand';
 import { GlyphChars } from '../constants';
 import { Container } from '../container';
-import { BranchSortOptions, GitBranch, GitReference, GitTag, TagSortOptions } from '../git/git';
+import { BranchSortOptions, GitBranch, GitReference, GitTag, Repository, TagSortOptions } from '../git/git';
 import { KeyboardScope, Keys } from '../keyboard';
+import { Logger } from '../logger';
 import { BranchQuickPickItem, getQuickPickIgnoreFocusOut, RefQuickPickItem, TagQuickPickItem } from '../quickpicks';
+import { Strings } from '../system';
 
 export type ReferencesQuickPickItem = BranchQuickPickItem | TagQuickPickItem | RefQuickPickItem;
 
@@ -38,7 +40,6 @@ export namespace ReferencePicker {
 		options: ReferencesQuickPickOptions = {},
 	): Promise<GitReference | undefined> {
 		const quickpick = window.createQuickPick<ReferencesQuickPickItem>();
-		(quickpick as any).enableProposedApi = true;
 		quickpick.ignoreFocusOut = getQuickPickIgnoreFocusOut();
 
 		quickpick.title = title;
@@ -71,6 +72,7 @@ export namespace ReferencePicker {
 		}
 
 		const cancellation = new CancellationTokenSource();
+		disposables.push(cancellation);
 
 		let autoPick;
 		let items = getItems(repoPath, options);
@@ -89,21 +91,38 @@ export namespace ReferencePicker {
 
 		quickpick.show();
 
-		const getValidateGitReference = getValidateGitReferenceFn((await Container.git.getRepository(repoPath))!, {
-			buttons: [QuickCommandButtons.RevealInSideBar],
-			ranges:
-				// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-				options?.allowEnteringRefs && typeof options.allowEnteringRefs !== 'boolean'
-					? options.allowEnteringRefs.ranges
-					: undefined,
-		});
-
-		quickpick.items = await items;
-
-		quickpick.busy = false;
-		quickpick.enabled = true;
-
 		try {
+			// References are loaded directly from the repo path (see getItems), so the picker can
+			// open even when a Repository object isn't currently resolvable from the repo tree.
+			// The Repository is only needed to validate a manually-entered ref (#<ref>), so look it
+			// up best-effort and make that validation optional.
+			const repo = await getRepo(repoPath);
+			const getValidateGitReference =
+				repo != null
+					? getValidateGitReferenceFn(repo, {
+							buttons: [QuickCommandButtons.RevealInSideBar],
+							ranges:
+								// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+								options?.allowEnteringRefs && typeof options.allowEnteringRefs !== 'boolean'
+									? options.allowEnteringRefs.ranges
+									: undefined,
+					  })
+					: undefined;
+
+			// Don't let a failure loading branches/tags reject out of the picker -- show an empty
+			// list instead so the modal stays usable and can be dismissed.
+			let loadedItems: ReferencesQuickPickItem[];
+			try {
+				loadedItems = await items;
+			} catch (ex) {
+				Logger.error(ex, 'ReferencePicker.show: failed to load references');
+				loadedItems = [];
+			}
+			quickpick.items = loadedItems;
+
+			quickpick.busy = false;
+			quickpick.enabled = true;
+
 			let pick = await new Promise<ReferencesQuickPickItem | undefined>(resolve => {
 				disposables.push(
 					cancellation.token.onCancellationRequested(() => quickpick.hide()),
@@ -115,9 +134,13 @@ export namespace ReferencePicker {
 					}),
 					quickpick.onDidChangeValue(async e => {
 						// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-						if (options.allowEnteringRefs) {
-							if (!(await getValidateGitReference(quickpick, e))) {
-								quickpick.items = await items;
+						if (options.allowEnteringRefs && getValidateGitReference != null) {
+							try {
+								if (!(await getValidateGitReference(quickpick, e))) {
+									quickpick.items = await items;
+								}
+							} catch (ex) {
+								Logger.error(ex, 'ReferencePicker.show: failed to validate reference');
 							}
 						}
 
@@ -149,10 +172,31 @@ export namespace ReferencePicker {
 			if (pick == null) return undefined;
 
 			return pick.item;
+		} catch (ex) {
+			Logger.error(ex, 'ReferencePicker.show');
+			return undefined;
 		} finally {
 			quickpick.dispose();
 			disposables.forEach(d => d.dispose());
 		}
+	}
+
+	// Resolve a repository for a known repoPath. `Container.git.getRepository` can return undefined
+	// even for a perfectly valid repo path (its tracked-file probe can fail, or path normalization
+	// differs from the stored key). When that happens, fall back to matching any known repository
+	// (including closed ones) by normalized path. This keeps the picker working for repeated
+	// comparisons instead of silently failing to open.
+	async function getRepo(repoPath: string): Promise<Repository | undefined> {
+		const repo = await Container.git.getRepository(repoPath);
+		if (repo != null) return repo;
+
+		const normalized = Strings.normalizePath(repoPath);
+		for (const r of await Container.git.getRepositories()) {
+			if (Strings.normalizePath(r.path) === normalized) return r;
+		}
+
+		Logger.warn(`ReferencePicker.getRepo: no repository matched '${repoPath}'`);
+		return undefined;
 	}
 
 	async function getItems(
@@ -161,22 +205,73 @@ export namespace ReferencePicker {
 	): Promise<ReferencesQuickPickItem[]> {
 		include = include ?? ReferencesQuickPickIncludes.BranchesAndTags;
 
-		const items: ReferencesQuickPickItem[] = await getBranchesAndOrTags(
-			(await Container.git.getRepository(repoPath))!,
-			include && ReferencesQuickPickIncludes.BranchesAndTags
-				? ['branches', 'tags']
-				: include && ReferencesQuickPickIncludes.Branches
-				? ['branches']
-				: include && ReferencesQuickPickIncludes.Tags
-				? ['tags']
-				: [],
-			{
-				buttons: [QuickCommandButtons.RevealInSideBar],
-				filter: filter,
-				picked: picked,
-				sort: sort ?? { branches: { current: false }, tags: {} },
-			},
-		);
+		const buttons = [QuickCommandButtons.RevealInSideBar];
+		const resolvedSort = sort ?? { branches: { current: false }, tags: {} };
+		const isPicked = (ref: string) => picked != null && ref === picked;
+
+		// Load references directly from the repo path so the picker works even when a Repository
+		// object can't be resolved from the repository tree (the cause of repeated comparisons
+		// silently failing to open). These service calls run git against repoPath directly.
+		const wantBranches = (include & ReferencesQuickPickIncludes.Branches) !== 0;
+		const wantTags = (include & ReferencesQuickPickIncludes.Tags) !== 0;
+
+		const [branches, tags] = await Promise.all([
+			wantBranches
+				? Container.git.getBranches(repoPath, {
+						filter: filter?.branches,
+						sort: typeof resolvedSort === 'boolean' ? resolvedSort : resolvedSort.branches,
+				  })
+				: Promise.resolve([] as GitBranch[]),
+			wantTags ? Container.git.getTags(repoPath, { filter: filter?.tags, sort: true }) : Promise.resolve([] as GitTag[]),
+		]);
+
+		let items: ReferencesQuickPickItem[];
+		if (wantBranches && wantTags) {
+			items = await Promise.all<ReferencesQuickPickItem>([
+				...branches
+					.filter(b => !b.remote)
+					.map(b =>
+						BranchQuickPickItem.create(b, isPicked(b.ref), {
+							buttons: buttons,
+							current: 'checkmark',
+							ref: true,
+							status: true,
+						}),
+					),
+				...tags.map(t =>
+					TagQuickPickItem.create(t, isPicked(t.ref), { buttons: buttons, message: false, ref: true, type: true }),
+				),
+				...branches
+					.filter(b => b.remote)
+					.map(b =>
+						BranchQuickPickItem.create(b, isPicked(b.ref), {
+							buttons: buttons,
+							current: 'checkmark',
+							ref: true,
+							status: true,
+							type: 'remote',
+						}),
+					),
+			]);
+		} else if (wantBranches) {
+			items = await Promise.all<ReferencesQuickPickItem>(
+				branches.map(b =>
+					BranchQuickPickItem.create(b, isPicked(b.ref), {
+						buttons: buttons,
+						current: 'checkmark',
+						ref: true,
+						status: true,
+						type: 'remote',
+					}),
+				),
+			);
+		} else if (wantTags) {
+			items = await Promise.all<ReferencesQuickPickItem>(
+				tags.map(t => TagQuickPickItem.create(t, isPicked(t.ref), { buttons: buttons, message: false, ref: true })),
+			);
+		} else {
+			items = [];
+		}
 
 		// Move the picked item to the top
 		if (picked) {

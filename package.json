@@ -3,7 +3,7 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(Kylin Modified) Supercharge the Git capabilities built into IDE — Visualize code authorship at a glance via Git blame annotations and code lens, seamlessly navigate and explore Git repositories, gain valuable insights via powerful comparison commands, and so much more",
-	"version": "0.1.17",
+	"version": "0.1.19",
 	"author": {
 		"name": "Eric Amodio",
 		"email": "eamodio@gmail.com"
@@ -10042,6 +10042,7 @@
 		"clean": "npx rimraf .eslintcache* tsconfig*.tsbuildinfo",
 		"lint": "eslint src/**/*.ts --fix",
 		"pack": "pnpm version patch --no-git-tag-version && pnpm exec vsce package --no-dependencies",
+		"package": "npm run pack",
 		"pretty": "prettier --config .prettierrc --loglevel warn --write .",
 		"rebuild": "pnpm run reset && pnpm run build",
 		"reset": "pnpm run clean && pnpm install --frozen-lockfile",
