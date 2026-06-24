@@ -74,15 +74,11 @@ export class Container {
 		context.subscriptions.push((this._settingsWebview = new SettingsWebview()));
 		context.subscriptions.push((this._welcomeWebview = new WelcomeWebview()));
 
-		context.subscriptions.push((this._repositoriesView = new RepositoriesView()));
-		context.subscriptions.push((this._commitsView = new CommitsView()));
-		context.subscriptions.push((this._fileHistoryView = new FileHistoryView()));
-		context.subscriptions.push((this._lineHistoryView = new LineHistoryView()));
-		context.subscriptions.push((this._branchesView = new BranchesView()));
-		context.subscriptions.push((this._remotesView = new RemotesView()));
-		context.subscriptions.push((this._stashesView = new StashesView()));
-		context.subscriptions.push((this._tagsView = new TagsView()));
-		context.subscriptions.push((this._contributorsView = new ContributorsView()));
+		// Search & Compare is the only sidebar tree view this fork ships. The other GitLens
+		// views (repositories, commits, branches, remotes, stashes, tags, contributors,
+		// file/line history) are no longer contributed in package.json and are intentionally
+		// not instantiated here. Their classes remain only as transitively-referenced types
+		// and are never registered as tree providers.
 		context.subscriptions.push((this._searchAndCompareView = new SearchAndCompareView()));
 
 		context.subscriptions.push((this._rebaseEditor = new RebaseEditorProvider()));

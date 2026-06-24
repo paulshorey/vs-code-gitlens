@@ -127,7 +127,6 @@ export enum Commands {
 	ShowCommitsView = 'gitlens.showCommitsView',
 	ShowContributorsView = 'gitlens.showContributorsView',
 	ShowFileHistoryView = 'gitlens.showFileHistoryView',
-	ShowKylinCommitsView = 'gitlens.showkylincommitsRelevantView',
 	ShowLastQuickPick = 'gitlens.showLastQuickPick',
 	ShowLineHistoryView = 'gitlens.showLineHistoryView',
 	ShowQuickBranchHistory = 'gitlens.showQuickBranchHistory',

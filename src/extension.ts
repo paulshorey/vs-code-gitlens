@@ -11,7 +11,6 @@ import { CreatePullRequestOnRemoteCommandArgs } from './commands/createPullReque
 import { configuration, Configuration, TraceLevel } from './configuration';
 import { ContextKeys, GlobalState, GlyphChars, setContext, SyncedState } from './constants';
 import { Container } from './container';
-import Controller from './controllers/mainController';
 import { Git, GitBranch, GitCommit } from './git/git';
 import { GitService } from './git/gitService';
 import { GitUri } from './git/gitUri';
@@ -28,23 +27,6 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 	const start = process.hrtime();
 
 	_context = context;
-
-	// Register Kylin-specific commands for commit chart views
-	const controller = new Controller(context);
-	const disposable = commands.registerCommand('kylin.viewCommits', () => {
-		void controller.showCommitsPanel();
-	});
-	context.subscriptions.push(disposable);
-	//
-
-	const disposablesinglefile = commands.registerCommand('kylin.viewfilehistory', () => {
-		void controller.showsinglefileCommitsPanel();
-	});
-	context.subscriptions.push(disposablesinglefile);
-
-
-
-
 
 	// Pretend we are enabled (until we know otherwise) and set the view contexts to reduce flashing on load
 	void setContext(ContextKeys.Enabled, true);
@@ -242,20 +224,7 @@ function registerBuiltInActionRunners(context: ExtensionContext): void {
 	);
 }
 
-const startupViewIds = [
-	'gitlens.views.welcome',
-	'gitlens.views.commits',
-	'gitlens.views.repositories',
-	'gitlens.views.fileHistory',
-	'gitlens.views.kylincommitsRelevant',
-	'gitlens.views.lineHistory',
-	'gitlens.views.branches',
-	'gitlens.views.remotes',
-	'gitlens.views.stashes',
-	'gitlens.views.tags',
-	'gitlens.views.contributors',
-	'gitlens.views.searchAndCompare',
-];
+const startupViewIds = ['gitlens.views.searchAndCompare'];
 
 async function ensureVisibleViews(context: ExtensionContext) {
 	await context.globalState.update(SyncedState.WelcomeViewVisible, true);

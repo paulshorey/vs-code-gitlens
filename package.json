@@ -3,7 +3,7 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(Kylin Modified) Supercharge the Git capabilities built into IDE — Visualize code authorship at a glance via Git blame annotations and code lens, seamlessly navigate and explore Git repositories, gain valuable insights via powerful comparison commands, and so much more",
-	"version": "0.1.20",
+	"version": "0.1.21",
 	"author": {
 		"name": "Eric Amodio",
 		"email": "eamodio@gmail.com"
@@ -29,17 +29,7 @@
 	"activationEvents": [
 		"onCustomEditor:gitlens.rebase",
 		"onFileSystem:gitlens",
-		"onView:gitlens.views.repositories",
-		"onView:gitlens.views.commits",
-		"onView:gitlens.views.fileHistory",
-		"onView:gitlens.views.lineHistory",
-		"onView:gitlens.views.branches",
-		"onView:gitlens.views.remotes",
-		"onView:gitlens.views.stashes",
-		"onView:gitlens.views.tags",
-		"onView:gitlens.views.contributors",
 		"onView:gitlens.views.searchAndCompare",
-		"onView:gitlens.views.kylincommitsRelevant",
 		"onCommand:gitlens.showSettingsPage",
 		"onCommand:gitlens.showSettingsPage#views",
 		"onCommand:gitlens.showSettingsPage#branches-view",
@@ -64,7 +54,6 @@
 		"onCommand:gitlens.showStashesView",
 		"onCommand:gitlens.showTagsView",
 		"onCommand:gitlens.showWelcomeView",
-		"onCommand:gitlens.showkylincommitsRelevantView",
 		"onCommand:gitlens.closeWelcomeView",
 		"onCommand:gitlens.compareWith",
 		"onCommand:gitlens.compareHeadWith",
@@ -3400,14 +3389,6 @@
 		],
 		"commands": [
 			{
-				"command": "kylin.viewCommits",
-				"title": "kylin: View Commits"
-			},
-			{
-				"command": "kylin.viewfilehistory",
-				"title": "kylin: View File Graph"
-			},
-			{
 				"command": "gitlens.showSettingsPage",
 				"title": "%Open Settings%",
 				"category": "GitLens",
@@ -3507,11 +3488,6 @@
 			},
 			{
 				"command": "gitlens.showFileHistoryView",
-				"title": "%Show File History View%",
-				"category": "GitLens"
-			},
-			{
-				"command": "gitlens.showkylincommitsRelevantView",
 				"title": "%Show File History View%",
 				"category": "GitLens"
 			},
@@ -5609,10 +5585,6 @@
 				},
 				{
 					"command": "gitlens.showFileHistoryView",
-					"when": "true"
-				},
-				{
-					"command": "gitlens.showkylincommitsRelevantView",
 					"when": "true"
 				},
 				{
@@ -9921,24 +9893,8 @@
 		},
 		"viewsWelcome": [
 			{
-				"view": "gitlens.views.welcome",
-				"contents": "%viewsWelcome.welcome.state%"
-			},
-			{
-				"view": "gitlens.views.welcome",
-				"contents": "%viewsWelcome.welcome.view%"
-			},
-			{
-				"view": "gitlens.views.welcome",
-				"contents": "%viewsWelcome.welcome.close%"
-			},
-			{
 				"view": "gitlens.views.searchAndCompare",
 				"contents": "%viewsWelcome.searchAndCompare.searchcommit%"
-			},
-			{
-				"view": "gitlens.views.kylincommitsRelevant",
-				"contents": "%viewsWelcome.kylincommitsRelevant%"
 			},
 			{
 				"view": "gitlens.views.searchAndCompare",
@@ -9947,83 +9903,6 @@
 		],
 		"views": {
 			"gitlens": [
-				{
-					"id": "gitlens.views.welcome",
-					"name": "Welcome",
-					"contextualTitle": "GitLens",
-					"icon": "images/gitlens-activitybar.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.commits",
-					"name": "%Commits%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/commits.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.repositories",
-					"name": "%Repositories%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/repositories.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.fileHistory",
-					"name": "%File History%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/history.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.kylincommitsRelevant",
-					"name": "%Commits Relevant%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/history.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.lineHistory",
-					"name": "%Line History%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/history.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.branches",
-					"name": "%Branches%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/branches.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.remotes",
-					"name": "%Remotes%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/remotes.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.stashes",
-					"name": "%Stashes%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/stashes.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.tags",
-					"name": "%Tags%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/tags.svg",
-					"visibility": "visible"
-				},
-				{
-					"id": "gitlens.views.contributors",
-					"name": "%Contributors%",
-					"contextualTitle": "GitLens",
-					"icon": "images/views/contributors.svg",
-					"visibility": "visible"
-				},
 				{
 					"id": "gitlens.views.searchAndCompare",
 					"name": "%Search & Compare%",

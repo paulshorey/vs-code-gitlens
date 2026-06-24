@@ -19,7 +19,6 @@ export class ShowViewCommand extends Command {
 			Commands.ShowStashesView,
 			Commands.ShowTagsView,
 			Commands.ShowWelcomeView,
-			Commands.ShowKylinCommitsView,
 		]);
 	}
 
@@ -39,8 +38,6 @@ export class ShowViewCommand extends Command {
 				return Container.fileHistoryView.show();
 			case Commands.ShowLineHistoryView:
 				return Container.lineHistoryView.show();
-			//case Commands.ShowKylinCommitsView:
-				//return Container.commitsrelevantView.show();
 			case Commands.ShowRemotesView:
 				return Container.remotesView.show();
 			case Commands.ShowRepositoriesView:
