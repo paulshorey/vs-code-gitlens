@@ -78,13 +78,7 @@ export class GitRemote<TProvider extends RemoteProvider | undefined = RemoteProv
 		return bestUrl!;
 	}
 
-	async setAsDefault(state: boolean = true, updateViews: boolean = true) {
+	async setAsDefault(state: boolean = true, _updateViews: boolean = true) {
 		void (await Container.context.workspaceState.update(WorkspaceState.DefaultRemote, state ? this.id : undefined));
-
-		// TODO@eamodio this is UGLY
-		if (updateViews) {
-			void (await Container.remotesView.refresh());
-			void (await Container.repositoriesView.refresh());
-		}
 	}
 }

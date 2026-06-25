@@ -25,6 +25,13 @@ import { Logger } from '../../logger';
 import { debug, Functions, gate, log, logName, Strings } from '../../system';
 import { TreeViewNodeCollapsibleStateChangeEvent, View } from '../viewBase';
 
+// Stable id prefix for repository-scoped node ids. Historically this lived on
+// `RepositoryNode.getId`; it is kept here so compare/search node ids stay stable after the
+// repositories view (and its node) were removed.
+export function getRepoNodeId(repoPath: string): string {
+	return `gitlens:repository(${repoPath})`;
+}
+
 export enum ContextValues {
 	ActiveFileHistory = 'gitlens:history:active:file',
 	ActiveLineHistory = 'gitlens:history:active:line',

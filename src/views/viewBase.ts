@@ -35,44 +35,14 @@ import {
 import { Container } from '../container';
 import { Logger } from '../logger';
 import { debug, Functions, log, Promises } from '../system';
-import { BranchesView } from './branchesView';
-import { CommitsView } from './commitsView';
-import { ContributorsView } from './contributorsView';
-import { FileHistoryView } from './fileHistoryView';
-import { LineHistoryView } from './lineHistoryView';
 import { PageableViewNode, ViewNode } from './nodes';
-import { RemotesView } from './remotesView';
-import { RepositoriesView } from './repositoriesView';
 import { SearchAndCompareView } from './searchAndCompareView';
-import { StashesView } from './stashesView';
-import { TagsView } from './tagsView';
 
-export type View =
-	| BranchesView
-	| CommitsView
-	| ContributorsView
-	| FileHistoryView
-	| LineHistoryView
-	| RemotesView
-	| RepositoriesView
-	| SearchAndCompareView
-	| StashesView
-	| TagsView;
-export type ViewsWithCommits =
-	| BranchesView
-	| CommitsView
-	| ContributorsView
-	| RemotesView
-	| RepositoriesView
-	| SearchAndCompareView
-	| TagsView;
-export type ViewsWithPullRequests =
-	| BranchesView
-	| CommitsView
-	| ContributorsView
-	| RemotesView
-	| RepositoriesView
-	| SearchAndCompareView;
+// This fork ships only the Search & Compare view; the historical multi-view union types
+// now collapse to that single view.
+export type View = SearchAndCompareView;
+export type ViewsWithCommits = SearchAndCompareView;
+export type ViewsWithPullRequests = SearchAndCompareView;
 
 export interface TreeViewNodeCollapsibleStateChangeEvent<T> extends TreeViewExpansionEvent<T> {
 	state: TreeItemCollapsibleState;

@@ -6,9 +6,8 @@ import { GitLog, SearchPattern } from '../../git/git';
 import { GitUri } from '../../git/gitUri';
 import { debug, gate, log, Strings } from '../../system';
 import { SearchAndCompareView } from '../searchAndCompareView';
-import { RepositoryNode } from './repositoryNode';
 import { CommitsQueryResults, ResultsCommitsNode } from './resultsCommitsNode';
-import { ContextValues, PageableViewNode, ViewNode } from './viewNode';
+import { ContextValues, getRepoNodeId, PageableViewNode, ViewNode } from './viewNode';
 
 let instanceId = 0;
 
@@ -22,7 +21,7 @@ interface SearchQueryResults {
 export class SearchResultsNode extends ViewNode<SearchAndCompareView> implements PageableViewNode {
 	static key = ':search-results';
 	static getId(repoPath: string, search: SearchPattern | undefined, instanceId: number): string {
-		return `${RepositoryNode.getId(repoPath)}${this.key}(${
+		return `${getRepoNodeId(repoPath)}${this.key}(${
 			search == null ? '?' : SearchPattern.toKey(search)
 		}):${instanceId}`;
 	}

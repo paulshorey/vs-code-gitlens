@@ -1072,23 +1072,12 @@ export async function* pickRepositoryStep<
 							}),
 						),
 				  ),
-		onDidClickItemButton: (quickpick, button, { item }) => {
-			if (button === QuickCommandButtons.RevealInSideBar) {
-				void Container.repositoriesView.revealRepository(item.path, {
-					select: true,
-					expand: true,
-				});
-			}
+		onDidClickItemButton: (_quickpick, _button, _item) => {
+			// Reveal-in-side-bar is a no-op in this fork; the repositories view was removed.
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: quickpick => {
-			if (quickpick.activeItems.length === 0) return;
-
-			void Container.repositoriesView.revealRepository(quickpick.activeItems[0].item.path, {
-				select: true,
-				focus: false,
-				expand: true,
-			});
+		onDidPressKey: _quickpick => {
+			// Reveal-in-side-bar is a no-op in this fork; the repositories view was removed.
 		},
 	});
 	const selection: StepSelection<typeof step> = yield step;
@@ -1141,23 +1130,12 @@ export async function* pickRepositoriesStep<
 							),
 						),
 				  ),
-		onDidClickItemButton: (quickpick, button, { item }) => {
-			if (button === QuickCommandButtons.RevealInSideBar) {
-				void Container.repositoriesView.revealRepository(item.path, {
-					select: true,
-					expand: true,
-				});
-			}
+		onDidClickItemButton: (_quickpick, _button, _item) => {
+			// Reveal-in-side-bar is a no-op in this fork; the repositories view was removed.
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: quickpick => {
-			if (quickpick.activeItems.length === 0) return;
-
-			void Container.repositoriesView.revealRepository(quickpick.activeItems[0].item.path, {
-				select: true,
-				focus: false,
-				expand: true,
-			});
+		onDidPressKey: _quickpick => {
+			// Reveal-in-side-bar is a no-op in this fork; the repositories view was removed.
 		},
 	});
 	const selection: StepSelection<typeof step> = yield step;

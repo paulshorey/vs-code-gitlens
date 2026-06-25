@@ -5,11 +5,10 @@ import { Commands, DiffWithPreviousCommandArgs } from '../../commands';
 import { Container } from '../../container';
 import { GitBranch, GitFile, GitLogCommit, GitRevisionReference, StatusFileFormatter } from '../../git/git';
 import { GitUri } from '../../git/gitUri';
-import { FileHistoryView } from '../fileHistoryView';
 import { View, ViewsWithCommits } from '../viewBase';
 import { ContextValues, ViewNode, ViewRefFileNode } from './viewNode';
 
-export class CommitFileNode<TView extends View = ViewsWithCommits | FileHistoryView> extends ViewRefFileNode<TView> {
+export class CommitFileNode<TView extends View = ViewsWithCommits> extends ViewRefFileNode<TView> {
 	constructor(
 		view: TView,
 		parent: ViewNode,

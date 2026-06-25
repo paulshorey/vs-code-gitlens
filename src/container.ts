@@ -24,16 +24,7 @@ import { memoize } from './system/decorators/memoize';
 import { GitTerminalLinkProvider } from './terminal/linkProvider';
 import { GitDocumentTracker } from './trackers/gitDocumentTracker';
 import { GitLineTracker } from './trackers/gitLineTracker';
-import { BranchesView } from './views/branchesView';
-import { CommitsView } from './views/commitsView';
-import { ContributorsView } from './views/contributorsView';
-import { FileHistoryView } from './views/fileHistoryView';
-import { LineHistoryView } from './views/lineHistoryView';
-import { RemotesView } from './views/remotesView';
-import { RepositoriesView } from './views/repositoriesView';
 import { SearchAndCompareView } from './views/searchAndCompareView';
-import { StashesView } from './views/stashesView';
-import { TagsView } from './views/tagsView';
 import { ViewCommands } from './views/viewCommands';
 import { ViewFileDecorationProvider } from './views/viewDecorationProvider';
 import { VslsController } from './vsls/vsls';
@@ -145,24 +136,6 @@ export class Container {
 		return this._codeLensController;
 	}
 
-	private static _branchesView: BranchesView | undefined;
-	static get branchesView() {
-		if (this._branchesView == null) {
-			this._context.subscriptions.push((this._branchesView = new BranchesView()));
-		}
-
-		return this._branchesView;
-	}
-
-	private static _commitsView: CommitsView | undefined;
-	static get commitsView() {
-		if (this._commitsView == null) {
-			this._context.subscriptions.push((this._commitsView = new CommitsView()));
-		}
-
-		return this._commitsView;
-	}
-
 	private static _config: Config | undefined;
 	static get config() {
 		if (this._config == null) {
@@ -176,27 +149,9 @@ export class Container {
 		return this._context;
 	}
 
-	private static _contributorsView: ContributorsView | undefined;
-	static get contributorsView() {
-		if (this._contributorsView == null) {
-			this._context.subscriptions.push((this._contributorsView = new ContributorsView()));
-		}
-
-		return this._contributorsView;
-	}
-
 	private static _fileAnnotationController: FileAnnotationController;
 	static get fileAnnotations() {
 		return this._fileAnnotationController;
-	}
-
-	private static _fileHistoryView: FileHistoryView | undefined;
-	static get fileHistoryView() {
-		if (this._fileHistoryView == null) {
-			this._context.subscriptions.push((this._fileHistoryView = new FileHistoryView()));
-		}
-
-		return this._fileHistoryView;
 	}
 
 	private static _git: GitService;
@@ -237,15 +192,6 @@ export class Container {
 		return this._lineAnnotationController;
 	}
 
-	private static _lineHistoryView: LineHistoryView | undefined;
-	static get lineHistoryView() {
-		if (this._lineHistoryView == null) {
-			this._context.subscriptions.push((this._lineHistoryView = new LineHistoryView()));
-		}
-
-		return this._lineHistoryView;
-	}
-
 	private static _lineHoverController: LineHoverController;
 	static get lineHovers() {
 		return this._lineHoverController;
@@ -265,24 +211,6 @@ export class Container {
 		return this._rebaseEditor;
 	}
 
-	private static _remotesView: RemotesView | undefined;
-	static get remotesView() {
-		if (this._remotesView == null) {
-			this._context.subscriptions.push((this._remotesView = new RemotesView()));
-		}
-
-		return this._remotesView;
-	}
-
-	private static _repositoriesView: RepositoriesView | undefined;
-	static get repositoriesView(): RepositoriesView {
-		if (this._repositoriesView == null) {
-			this._context.subscriptions.push((this._repositoriesView = new RepositoriesView()));
-		}
-
-		return this._repositoriesView;
-	}
-
 	private static _searchAndCompareView: SearchAndCompareView | undefined;
 	static get searchAndCompareView() {
 		if (this._searchAndCompareView == null) {
@@ -297,27 +225,9 @@ export class Container {
 		return this._settingsWebview;
 	}
 
-	private static _stashesView: StashesView | undefined;
-	static get stashesView() {
-		if (this._stashesView == null) {
-			this._context.subscriptions.push((this._stashesView = new StashesView()));
-		}
-
-		return this._stashesView;
-	}
-
 	private static _statusBarController: StatusBarController;
 	static get statusBar() {
 		return this._statusBarController;
-	}
-
-	private static _tagsView: TagsView | undefined;
-	static get tagsView() {
-		if (this._tagsView == null) {
-			this._context.subscriptions.push((this._tagsView = new TagsView()));
-		}
-
-		return this._tagsView;
 	}
 
 	private static _tracker: GitDocumentTracker;
