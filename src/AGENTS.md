@@ -4,14 +4,14 @@ Extension source. Entry point: `extension.ts`. Shared singleton: `container.ts`.
 
 ## Main Areas
 
-| Folder | Purpose |
-|--------|---------|
-| `commands/` | Command handlers, including view show/layout commands |
-| `git/` | Git execution, models, parsers, remotes |
-| `views/` | Tree views such as `Search & Compare` |
-| `webviews/` | Welcome/settings/rebase webviews |
-| `controllers/`, `services/` | Kylin-specific chart panels |
-| `annotations/`, `hovers/`, `codelens/`, `statusbar/` | Editor UI integrations |
+| Folder                                               | Purpose                                               |
+| ---------------------------------------------------- | ----------------------------------------------------- |
+| `commands/`                                          | Command handlers, including view show/layout commands |
+| `git/`                                               | Git execution, models, parsers, remotes               |
+| `views/`                                             | Tree views such as `Search & Compare`                 |
+| `webviews/`                                          | Welcome/settings/rebase webviews                      |
+| `controllers/`, `services/`                          | PaulShorey-specific chart panels                      |
+| `annotations/`, `hovers/`, `codelens/`, `statusbar/` | Editor UI integrations                                |
 
 ## Important Files
 

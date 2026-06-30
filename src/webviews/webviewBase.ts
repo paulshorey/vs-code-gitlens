@@ -200,7 +200,7 @@ export abstract class WebviewBase implements Disposable {
 								'~/code/eamodio/vscode-gitlens-demo',
 								'fe26af408293cba5b4bfd77306e1ac9ff7ccaef8',
 								'You',
-								'eamodio@gmail.com',
+								'hello@paulshorey.com',
 								new Date('2016-11-12T20:41:00.000Z'),
 								new Date('2020-11-01T06:57:21.000Z'),
 								'Supercharged',
@@ -226,7 +226,7 @@ export abstract class WebviewBase implements Disposable {
 								pr = new PullRequest(
 									{ id: 'github', name: 'GitHub', domain: 'github.com' },
 									{
-										name: 'Eric Amodio',
+										name: 'Paul Shorey',
 										avatarUrl: 'https://avatars1.githubusercontent.com/u/641685?s=32&v=4',
 										url: 'https://github.com/eamodio',
 									},

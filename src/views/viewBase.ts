@@ -266,7 +266,7 @@ export abstract class ViewBase<
 	get selection(): ViewNode[] {
 		if (this.tree == null || this.root == null) return [];
 
-		return this.tree.selection;
+		return [...this.tree.selection];
 	}
 
 	get visible(): boolean {

@@ -1,6 +1,6 @@
 /**
  * GitLens extension entry point.
- * Kylin fork of eamodio/vscode-gitlens (v11.7.0 base) with commit chart visualizations.
+ * PaulShorey fork of eamodio/vscode-gitlens (v11.7.0 base) with commit chart visualizations.
  */
 'use strict';
 import { commands, ExtensionContext, window, workspace } from 'vscode';

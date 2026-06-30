@@ -68,8 +68,8 @@ export class CommitFileNode<TView extends View = ViewsWithCommits> extends ViewR
 
 		const icon = GitFile.getStatusIcon(this.file.status);
 		item.iconPath = {
-			dark: Container.context.asAbsolutePath(paths.join('images', 'dark', icon)),
-			light: Container.context.asAbsolutePath(paths.join('images', 'light', icon)),
+			dark: Uri.file(Container.context.asAbsolutePath(paths.join('images', 'dark', icon))),
+			light: Uri.file(Container.context.asAbsolutePath(paths.join('images', 'light', icon))),
 		};
 
 		item.command = this.getCommand();

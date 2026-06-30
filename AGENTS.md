@@ -1,6 +1,6 @@
 # GitLens Codebase Overview
 
-VS Code extension forked from `eamodio/vscode-gitlens` with Kylin-specific chart panels.
+VS Code extension forked from `eamodio/vscode-gitlens` with PaulShorey-specific chart panels.
 
 ## Key Files
 

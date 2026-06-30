@@ -10,7 +10,7 @@ VS Code extension for Git visualization. Fork of eamodio/vscode-gitlens (v11.7.0
 - Diff commands (previous/next revision, working tree)
 - Interactive rebase editor
 - Remote integration (GitHub, GitLab, etc.)
-- Kylin extras: `kylin.viewCommits` (repo commit chart), `kylin.viewfilehistory` (file commit chart)
+- PaulShorey extras: `PaulShorey.viewCommits` (repo commit chart), `PaulShorey.viewfilehistory` (file commit chart)
 
 ## Build
 
