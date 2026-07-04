@@ -146,7 +146,7 @@ export function propOf<T, K extends Extract<keyof T, string>>(o: T, key: K) {
 			(propOfCore as PropOfValue).value === undefined ? key : `${(propOfCore as PropOfValue).value}.${key}`;
 		(propOfCore as PropOfValue).value = value;
 		const fn = <Y extends Extract<keyof T[K], string>>(k: Y) => propOfCore(o[key], k);
-		return Object.assign(fn, { value: value });
+		return Object.assign(fn, { value });
 	};
 	return propOfCore(o, key);
 }

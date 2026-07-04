@@ -239,8 +239,8 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 
 			this.comparePicker = new ComparePickerNode(this.view, this, {
 				label: this.getRefName(ref),
-				repoPath: repoPath,
-				ref: ref,
+				repoPath,
+				ref,
 			});
 			this.children.splice(0, 0, this.comparePicker);
 			void setContext(ContextKeys.ViewsCanCompare, true);
@@ -263,8 +263,8 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 
 	private getRefName(ref: string | NamedRef) {
 		return typeof ref === 'string'
-			? GitRevision.shorten(ref, { strings: { working: 'Working Tree' } })!
-			: ref.label ?? GitRevision.shorten(ref.ref)!;
+			? GitRevision.shorten(ref, { strings: { working: 'Working Tree' } })
+			: ref.label ?? GitRevision.shorten(ref.ref);
 	}
 
 	private removeComparePicker(silent: boolean = false) {
@@ -457,7 +457,7 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 
 		const labels = { label: `Results ${typeof label === 'string' ? label : label.label}`, queryLabel: label };
 		if (updateNode != null) {
-			await updateNode.edit({ pattern: search, labels: labels, log: results });
+			await updateNode.edit({ pattern: search, labels, log: results });
 
 			return;
 		}

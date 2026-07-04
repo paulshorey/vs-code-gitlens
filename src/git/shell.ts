@@ -70,7 +70,7 @@ function isExecutable(stats: fs.Stats) {
  */
 export function findExecutable(exe: string, args: string[]): { cmd: string; args: string[] } {
 	// POSIX can just execute scripts directly, no need for silly goosery
-	if (!isWindows) return { cmd: runDownPath(exe), args: args };
+	if (!isWindows) return { cmd: runDownPath(exe), args };
 
 	if (!fs.existsSync(exe)) {
 		// NB: When you write something like `surf-client ... -- surf-build` on Windows,
@@ -94,24 +94,24 @@ export function findExecutable(exe: string, args: string[]): { cmd: string; args
 		);
 		const psargs = ['-ExecutionPolicy', 'Unrestricted', '-NoLogo', '-NonInteractive', '-File', exe];
 
-		return { cmd: cmd, args: psargs.concat(args) };
+		return { cmd, args: psargs.concat(args) };
 	}
 
 	if (batOrCmdRegex.test(exe)) {
 		const cmd = paths.join(process.env.SYSTEMROOT ?? 'C:\\WINDOWS', 'System32', 'cmd.exe');
 		const cmdArgs = ['/C', exe, ...args];
 
-		return { cmd: cmd, args: cmdArgs };
+		return { cmd, args: cmdArgs };
 	}
 
 	if (jsRegex.test(exe)) {
 		const cmd = process.execPath;
 		const nodeArgs = [exe];
 
-		return { cmd: cmd, args: nodeArgs.concat(args) };
+		return { cmd, args: nodeArgs.concat(args) };
 	}
 
-	return { cmd: exe, args: args };
+	return { cmd: exe, args };
 }
 
 export interface RunOptions<TEncoding = BufferEncoding | 'buffer'> {

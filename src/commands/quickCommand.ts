@@ -290,7 +290,7 @@ export namespace QuickCommand {
 	): QuickPickStep<T> {
 		return createPickStep<T>({
 			placeholder: `Confirm ${context.title}`,
-			title: title,
+			title,
 			ignoreFocusOut: true,
 			items: [...confirmations, cancel ?? DirectiveQuickPickItem.create(Directive.Cancel)],
 			selectedItems: [confirmations.find(c => c.picked) ?? confirmations[0]],

@@ -10,35 +10,7 @@ export enum TraceLevel {
 export interface Config {
 	autolinks: AutolinkReference[] | null;
 	blame: {
-		avatars: boolean;
-		compact: boolean;
-		dateFormat: string | null;
-		format: string;
-		heatmap: {
-			enabled: boolean;
-			location: 'left' | 'right';
-		};
-		highlight: {
-			enabled: boolean;
-			locations: BlameHighlightLocations[];
-		};
 		ignoreWhitespace: boolean;
-		separateLines: boolean;
-		toggleMode: AnnotationsToggleMode;
-	};
-	changes: {
-		locations: ChangesLocations[];
-		toggleMode: AnnotationsToggleMode;
-	};
-	codeLens: CodeLensConfig;
-	currentLine: {
-		dateFormat: string | null;
-		enabled: boolean;
-		format: string;
-		pullRequests: {
-			enabled: boolean;
-		};
-		scrollable: boolean;
 	};
 	debug: boolean;
 	defaultDateFormat: string | null;
@@ -47,9 +19,6 @@ export interface Config {
 	defaultDateStyle: DateStyle;
 	defaultGravatarsStyle: GravatarDefaultStyle;
 	defaultTimeFormat: string | null;
-	fileAnnotations: {
-		command: string | null;
-	};
 	gitCommands: {
 		closeOnFocusOut: boolean;
 		search: {
@@ -61,47 +30,13 @@ export interface Config {
 		skipConfirmations: string[];
 		sortBy: GitCommandSorting;
 	};
-	heatmap: {
-		ageThreshold: number;
-		coldColor: string;
-		hotColor: string;
-		locations: HeatmapLocations[];
-		toggleMode: AnnotationsToggleMode;
-	};
 	hovers: {
-		annotations: {
-			changes: boolean;
-			details: boolean;
-			enabled: boolean;
-			over: 'line' | 'annotation';
-		};
-		autolinks: {
-			enabled: boolean;
-			enhanced: boolean;
-		};
-		currentLine: {
-			changes: boolean;
-			details: boolean;
-			enabled: boolean;
-			over: 'line' | 'annotation';
-		};
 		avatars: boolean;
 		avatarSize: number;
-		changesDiff: 'line' | 'hunk';
-		detailsMarkdownFormat: string;
-		enabled: boolean;
-		pullRequests: {
-			enabled: boolean;
-		};
 	};
 	integrations: {
 		enabled: boolean;
 	};
-	keymap: KeyMap;
-	liveshare: {
-		allowGuestAccess: boolean;
-	};
-	menus: boolean | MenuConfig;
 	mode: {
 		active: string;
 		statusBar: {
@@ -119,37 +54,11 @@ export interface Config {
 		}
 	> | null;
 	remotes: RemotesConfig[] | null;
-	showWelcomeOnInstall: boolean;
-	showWhatsNewAfterUpgrades: boolean;
 	sortBranchesBy: BranchSorting;
 	sortContributorsBy: ContributorSorting;
 	sortTagsBy: TagSorting;
-	statusBar: {
-		alignment: 'left' | 'right';
-		command: StatusBarCommand;
-		dateFormat: string | null;
-		enabled: boolean;
-		format: string;
-		reduceFlicker: boolean;
-		pullRequests: {
-			enabled: boolean;
-		};
-		tooltipFormat: string;
-	};
-	strings: {
-		codeLens: {
-			unsavedChanges: {
-				recentChangeAndAuthors: string;
-				recentChangeOnly: string;
-				authorsOnly: string;
-			};
-		};
-	};
-	terminalLinks: {
-		enabled: boolean;
-	};
-	views: ViewsConfig;
 	advanced: AdvancedConfig;
+	views: ViewsConfig;
 }
 
 export enum AnnotationsToggleMode {
@@ -436,11 +345,6 @@ export interface ModeConfig {
 	name: string;
 	statusBarItemName?: string;
 	description?: string;
-	annotations?: 'blame' | 'changes' | 'heatmap';
-	codeLens?: boolean;
-	currentLine?: boolean;
-	hovers?: boolean;
-	statusBar?: boolean;
 }
 
 export type RemotesConfig =
@@ -502,122 +406,15 @@ export const viewsCommonConfigKeys: (keyof ViewsCommonConfig)[] = [
 ];
 
 interface ViewsConfigs {
-	branches: BranchesViewConfig;
-	commits: CommitsViewConfig;
-	contributors: ContributorsViewConfig;
-	fileHistory: FileHistoryViewConfig;
-	lineHistory: LineHistoryViewConfig;
-	remotes: RemotesViewConfig;
-	repositories: RepositoriesViewConfig;
 	searchAndCompare: SearchAndCompareViewConfig;
-	stashes: StashesViewConfig;
-	tags: TagsViewConfig;
 }
 
 export type ViewsConfigKeys = keyof ViewsConfigs;
-export const viewsConfigKeys: ViewsConfigKeys[] = [
-	'commits',
-	'repositories',
-	'fileHistory',
-	'lineHistory',
-	'branches',
-	'remotes',
-	'stashes',
-	'tags',
-	'contributors',
-	'searchAndCompare',
-];
+export const viewsConfigKeys: ViewsConfigKeys[] = ['searchAndCompare'];
 
 export type ViewsConfig = ViewsCommonConfig & ViewsConfigs;
 
-export interface BranchesViewConfig {
-	avatars: boolean;
-	branches: {
-		layout: ViewBranchesLayout;
-	};
-	files: ViewsFilesConfig;
-	pullRequests: {
-		enabled: boolean;
-		showForBranches: boolean;
-		showForCommits: boolean;
-	};
-	reveal: boolean;
-	showBranchComparison: false | ViewShowBranchComparison.Branch;
-}
-
-export interface CommitsViewConfig {
-	avatars: boolean;
-	branches: undefined;
-	files: ViewsFilesConfig;
-	pullRequests: {
-		enabled: boolean;
-		showForBranches: boolean;
-		showForCommits: boolean;
-	};
-	reveal: boolean;
-	showBranchComparison: false | ViewShowBranchComparison;
-}
-
-export interface ContributorsViewConfig {
-	avatars: boolean;
-	files: ViewsFilesConfig;
-	pullRequests: {
-		enabled: boolean;
-		showForCommits: boolean;
-	};
-	showAllBranches: boolean;
-	showStatistics: boolean;
-}
-
-export interface FileHistoryViewConfig {
-	avatars: boolean;
-	files: ViewsFilesConfig;
-}
-
-export interface LineHistoryViewConfig {
-	avatars: boolean;
-}
-
-export interface RemotesViewConfig {
-	avatars: boolean;
-	branches: {
-		layout: ViewBranchesLayout;
-	};
-	files: ViewsFilesConfig;
-	pullRequests: {
-		enabled: boolean;
-		showForBranches: boolean;
-		showForCommits: boolean;
-	};
-	reveal: boolean;
-}
-
-export interface RepositoriesViewConfig {
-	autoRefresh: boolean;
-	autoReveal: boolean;
-	avatars: boolean;
-	branches: {
-		layout: ViewBranchesLayout;
-		showBranchComparison: false | ViewShowBranchComparison.Branch;
-	};
-	compact: boolean;
-	files: ViewsFilesConfig;
-	includeWorkingTree: boolean;
-	pullRequests: {
-		enabled: boolean;
-		showForBranches: boolean;
-		showForCommits: boolean;
-	};
-	showBranchComparison: false | ViewShowBranchComparison;
-	showBranches: boolean;
-	showCommits: boolean;
-	showContributors: boolean;
-	showIncomingActivity: boolean;
-	showRemotes: boolean;
-	showStashes: boolean;
-	showTags: boolean;
-	showUpstreamStatus: boolean;
-}
+export type ViewConfig = SearchAndCompareViewConfig;
 
 export interface SearchAndCompareViewConfig {
 	avatars: boolean;
@@ -626,20 +423,6 @@ export interface SearchAndCompareViewConfig {
 		enabled: boolean;
 		showForCommits: boolean;
 	};
-}
-
-export interface StashesViewConfig {
-	files: ViewsFilesConfig;
-	reveal: boolean;
-}
-
-export interface TagsViewConfig {
-	avatars: boolean;
-	branches: {
-		layout: ViewBranchesLayout;
-	};
-	files: ViewsFilesConfig;
-	reveal: boolean;
 }
 
 export interface ViewsFilesConfig {

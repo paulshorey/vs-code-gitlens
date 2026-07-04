@@ -18,7 +18,7 @@ export class AddAuthorsCommand extends Command {
 
 		return executeGitCommand({
 			command: 'co-authors',
-			state: { repo: repo, contributors: undefined },
+			state: { repo, contributors: undefined },
 		});
 	}
 }

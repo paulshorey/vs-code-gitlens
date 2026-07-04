@@ -52,7 +52,7 @@ async function findSpecificGit(path: string): Promise<GitLocation> {
 	}
 
 	return {
-		path: path,
+		path,
 		version: parseVersion(version.trim()),
 	};
 }

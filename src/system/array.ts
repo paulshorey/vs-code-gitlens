@@ -151,7 +151,7 @@ export function makeHierarchical<T>(
 			if (f === undefined) {
 				f = {
 					name: folderName,
-					relativePath: relativePath,
+					relativePath,
 					parent: folder,
 					children: undefined,
 					descendants: undefined,

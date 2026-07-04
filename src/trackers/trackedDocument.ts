@@ -222,7 +222,7 @@ export class TrackedDocument<T> implements Disposable {
 			void setContext(ContextKeys.ActiveFileStatus, this.getStatus());
 
 			if (!this.initializing && wasBlameable !== blameable) {
-				const e: DocumentBlameStateChangeEvent<T> = { editor: active, document: this, blameable: blameable };
+				const e: DocumentBlameStateChangeEvent<T> = { editor: active, document: this, blameable };
 				this._onDidBlameStateChange.fire(e);
 				this._eventDelegates.onDidBlameStateChange(e);
 			}

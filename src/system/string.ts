@@ -196,7 +196,7 @@ export function getTokensFromTemplate(template: string) {
 		}
 
 		tokens.push({
-			key: key,
+			key,
 			options: {
 				collapseWhitespace: option === '?',
 				padDirection: option === '-' ? 'left' : 'right',

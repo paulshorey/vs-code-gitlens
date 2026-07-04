@@ -1,8 +1,8 @@
 'use strict';
 import { Container } from '../container';
-import { GitRemote, RemoteProvider, RemoteResource, RemoteResourceType } from '../git/git';
 import { Command, command, Commands, executeCommand } from './common';
 import { OpenOnRemoteCommandArgs } from './openOnRemote';
+import { GitRemote, RemoteProvider, RemoteResource, RemoteResourceType } from '../git/git';
 
 export interface CreatePullRequestOnRemoteCommandArgs {
 	base?: string;
@@ -46,8 +46,8 @@ export class CreatePullRequestOnRemoteCommand extends Command {
 		};
 
 		void (await executeCommand<OpenOnRemoteCommandArgs>(Commands.OpenOnRemote, {
-			resource: resource,
-			remotes: remotes,
+			resource,
+			remotes,
 		}));
 	}
 }

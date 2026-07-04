@@ -99,7 +99,7 @@ export class DiffWithWorkingCommand extends ActiveEditorCommand {
 			repoPath: gitUri.repoPath,
 			lhs: {
 				sha: gitUri.sha,
-				uri: uri,
+				uri,
 			},
 			rhs: {
 				sha: '',

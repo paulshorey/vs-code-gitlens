@@ -39,7 +39,7 @@ export function preview() {
 		if (fn == null) throw new Error('Not supported');
 
 		descriptor.value = function (this: any, ...args: any[]) {
-			if (Container.insiders || Logger.isDebugging) return fn!.apply(this, args);
+			if (Container.insiders || Logger.isDebugging) return fn.apply(this, args);
 
 			console.error('GitLens preview APIs are only available in the Insiders edition');
 			return emptyDisposable;

@@ -16,20 +16,10 @@ import {
 	window,
 } from 'vscode';
 import {
-	BranchesViewConfig,
-	CommitsViewConfig,
 	configuration,
-	ContributorsViewConfig,
-	FileHistoryViewConfig,
-	LineHistoryViewConfig,
-	RemotesViewConfig,
-	RepositoriesViewConfig,
 	SearchAndCompareViewConfig,
-	StashesViewConfig,
-	TagsViewConfig,
 	ViewsCommonConfig,
 	viewsCommonConfigKeys,
-	viewsConfigKeys,
 	ViewsConfigKeys,
 } from '../configuration';
 import { Container } from '../container';
@@ -50,17 +40,7 @@ export interface TreeViewNodeCollapsibleStateChangeEvent<T> extends TreeViewExpa
 
 export abstract class ViewBase<
 	RootNode extends ViewNode<View>,
-	ViewConfig extends
-		| BranchesViewConfig
-		| ContributorsViewConfig
-		| FileHistoryViewConfig
-		| CommitsViewConfig
-		| LineHistoryViewConfig
-		| RemotesViewConfig
-		| RepositoriesViewConfig
-		| SearchAndCompareViewConfig
-		| StashesViewConfig
-		| TagsViewConfig,
+	ViewConfig extends SearchAndCompareViewConfig = SearchAndCompareViewConfig,
 > implements TreeDataProvider<ViewNode>, Disposable
 {
 	protected _onDidChangeTreeData = new EventEmitter<ViewNode | undefined>();
@@ -549,15 +529,11 @@ export abstract class ViewBase<
 
 	protected abstract readonly configKey: ViewsConfigKeys;
 
-	private _config: (ViewConfig & ViewsCommonConfig) | undefined;
-	get config(): ViewConfig & ViewsCommonConfig {
+	private _config: (SearchAndCompareViewConfig & ViewsCommonConfig) | undefined;
+	get config(): SearchAndCompareViewConfig & ViewsCommonConfig {
 		if (this._config == null) {
-			const cfg = { ...Container.config.views };
-			for (const view of viewsConfigKeys) {
-				delete cfg[view];
-			}
-
-			this._config = { ...(cfg as ViewsCommonConfig), ...(Container.config.views[this.configKey] as ViewConfig) };
+			const { searchAndCompare, ...common } = Container.config.views;
+			this._config = { ...common, ...searchAndCompare };
 		}
 
 		return this._config;

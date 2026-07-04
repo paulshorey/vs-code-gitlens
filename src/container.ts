@@ -14,10 +14,6 @@ import { GitLineTracker } from './trackers/gitLineTracker';
 import { SearchAndCompareView } from './views/searchAndCompareView';
 import { ViewCommands } from './views/viewCommands';
 import { ViewFileDecorationProvider } from './views/viewDecorationProvider';
-import { VslsController } from './vsls/vsls';
-import { RebaseEditorProvider } from './webviews/rebaseEditor';
-import { SettingsWebview } from './webviews/settingsWebview';
-import { WelcomeWebview } from './webviews/welcomeWebview';
 
 export class Container {
 	private static _configsAffectedByMode: string[] | undefined;
@@ -32,7 +28,6 @@ export class Container {
 		context.subscriptions.push((this._actionRunners = new ActionRunners()));
 		context.subscriptions.push((this._lineTracker = new GitLineTracker()));
 		context.subscriptions.push((this._tracker = new GitDocumentTracker()));
-		context.subscriptions.push((this._vsls = new VslsController()));
 
 		context.subscriptions.push((this._git = new GitService()));
 
@@ -42,17 +37,8 @@ export class Container {
 		this._tracker.initialize();
 
 		context.subscriptions.push((this._keyboard = new Keyboard()));
-		context.subscriptions.push((this._settingsWebview = new SettingsWebview()));
-		context.subscriptions.push((this._welcomeWebview = new WelcomeWebview()));
 
-		// Search & Compare is the only sidebar tree view this fork ships. The other GitLens
-		// views (repositories, commits, branches, remotes, stashes, tags, contributors,
-		// file/line history) are no longer contributed in package.json and are intentionally
-		// not instantiated here. Their classes remain only as transitively-referenced types
-		// and are never registered as tree providers.
 		context.subscriptions.push((this._searchAndCompareView = new SearchAndCompareView()));
-
-		context.subscriptions.push((this._rebaseEditor = new RebaseEditorProvider()));
 
 		context.subscriptions.push(new GitFileSystemProvider());
 
@@ -114,24 +100,6 @@ export class Container {
 		return this._git;
 	}
 
-	private static _github: Promise<import('./github/github').GitHubApi | undefined> | undefined;
-	static get github() {
-		if (this._github == null) {
-			this._github = this._loadGitHubApi();
-		}
-
-		return this._github;
-	}
-
-	private static async _loadGitHubApi() {
-		try {
-			return new (await import(/* webpackChunkName: "github" */ './github/github')).GitHubApi();
-		} catch (ex) {
-			Logger.error(ex);
-			return undefined;
-		}
-	}
-
 	@memoize()
 	static get insiders() {
 		return this._context.extension.id.endsWith('-insiders');
@@ -147,15 +115,6 @@ export class Container {
 		return this._lineTracker;
 	}
 
-	private static _rebaseEditor: RebaseEditorProvider | undefined;
-	static get rebaseEditor() {
-		if (this._rebaseEditor == null) {
-			this._context.subscriptions.push((this._rebaseEditor = new RebaseEditorProvider()));
-		}
-
-		return this._rebaseEditor;
-	}
-
 	private static _searchAndCompareView: SearchAndCompareView | undefined;
 	static get searchAndCompareView() {
 		if (this._searchAndCompareView == null) {
@@ -163,11 +122,6 @@ export class Container {
 		}
 
 		return this._searchAndCompareView;
-	}
-
-	private static _settingsWebview: SettingsWebview;
-	static get settingsWebview() {
-		return this._settingsWebview;
 	}
 
 	private static _tracker: GitDocumentTracker;
@@ -183,21 +137,7 @@ export class Container {
 		return this._viewCommands;
 	}
 
-	private static _vsls: VslsController;
-	static get vsls() {
-		return this._vsls;
-	}
-
-	private static _welcomeWebview: WelcomeWebview;
-	static get welcomeWebview() {
-		return this._welcomeWebview;
-	}
-
 	private static applyMode(config: Config) {
-		// The editor-decoration subsystems that `modes` used to toggle (blame/changes/heatmap
-		// annotations, code lens, current-line, hovers, status bar) have been removed from this
-		// fork, so applying a mode no longer has any effect. Kept as a pass-through so the
-		// `mode`/`modes` settings remain harmless.
 		return config;
 	}
 
@@ -206,13 +146,6 @@ export class Container {
 			this._configsAffectedByMode = [
 				`gitlens.${configuration.name('mode')}`,
 				`gitlens.${configuration.name('modes')}`,
-				`gitlens.${configuration.name('blame.toggleMode')}`,
-				`gitlens.${configuration.name('changes.toggleMode')}`,
-				`gitlens.${configuration.name('codeLens')}`,
-				`gitlens.${configuration.name('currentLine')}`,
-				`gitlens.${configuration.name('heatmap.toggleMode')}`,
-				`gitlens.${configuration.name('hovers')}`,
-				`gitlens.${configuration.name('statusBar')}`,
 			];
 		}
 

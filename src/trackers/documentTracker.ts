@@ -138,7 +138,7 @@ export class DocumentTracker<T> implements Disposable {
 
 	private async onTextDocumentChanged(e: TextDocumentChangeEvent) {
 		const { scheme } = e.document.uri;
-		if (scheme !== DocumentSchemes.File && scheme !== DocumentSchemes.Git && scheme !== DocumentSchemes.Vsls) {
+		if (scheme !== DocumentSchemes.File && scheme !== DocumentSchemes.Git) {
 			return;
 		}
 
@@ -159,7 +159,7 @@ export class DocumentTracker<T> implements Disposable {
 
 		// Only fire change events for the active document
 		if (editor?.document === e.document) {
-			this._onDidChangeContent.fire({ editor: editor, document: doc, contentChanges: e.contentChanges });
+			this._onDidChangeContent.fire({ editor, document: doc, contentChanges: e.contentChanges });
 		}
 
 		if (!doc.forceDirtyStateChangeOnNextDocumentChange && doc.dirty === dirty) return;
@@ -170,7 +170,7 @@ export class DocumentTracker<T> implements Disposable {
 		// Only fire state change events for the active document
 		if (editor == null || editor.document !== e.document) return;
 
-		this.fireDocumentDirtyStateChanged({ editor: editor, document: doc, dirty: doc.dirty });
+		this.fireDocumentDirtyStateChanged({ editor, document: doc, dirty: doc.dirty });
 	}
 
 	private async onTextDocumentClosed(document: TextDocument) {
@@ -377,11 +377,11 @@ class EmptyTextDocument implements TextDocument {
 		this.version = 0;
 	}
 
-	getText(_range?: Range | undefined): string {
+	getText(_range?: Range ): string {
 		throw new Error('Method not supported.');
 	}
 
-	getWordRangeAtPosition(_position: Position, _regex?: RegExp | undefined): Range | undefined {
+	getWordRangeAtPosition(_position: Position, _regex?: RegExp ): Range | undefined {
 		throw new Error('Method not supported.');
 	}
 

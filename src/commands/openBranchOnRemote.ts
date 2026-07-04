@@ -82,7 +82,7 @@ export class OpenBranchOnRemoteCommand extends ActiveEditorCommand {
 					type: RemoteResourceType.Branch,
 					branch: args.branch || 'HEAD',
 				},
-				repoPath: repoPath,
+				repoPath,
 				remote: args.remote,
 				clipboard: args.clipboard,
 			}));

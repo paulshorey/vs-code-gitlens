@@ -104,7 +104,7 @@ export class ShowQuickCommitFileCommand extends ActiveEditorCachedCommand {
 		}
 
 		try {
-			if (args.commit === undefined || !args.commit.isFile) {
+			if (!args.commit?.isFile) {
 				if (args.fileLog !== undefined) {
 					args.commit = args.fileLog.commits.get(args.sha);
 					// If we can't find the commit, kill the fileLog
@@ -142,7 +142,7 @@ export class ShowQuickCommitFileCommand extends ActiveEditorCachedCommand {
 				state: {
 					repo: args.commit.repoPath,
 					reference: args.commit as GitLogCommit,
-					fileName: fileName,
+					fileName,
 				},
 			}));
 

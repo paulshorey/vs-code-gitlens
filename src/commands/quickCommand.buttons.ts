@@ -50,7 +50,7 @@ export class ToggleQuickInputButton implements QuickInputButton {
 
 export class SelectableQuickInputButton extends ToggleQuickInputButton {
 	constructor(tooltip: string, icon: { off: string | ThemeIcon; on: string | ThemeIcon }, selected: boolean = false) {
-		super({ off: { tooltip: tooltip, icon: icon.off }, on: { tooltip: tooltip, icon: icon.on } }, selected);
+		super({ off: { tooltip, icon: icon.off }, on: { tooltip, icon: icon.on } }, selected);
 	}
 }
 

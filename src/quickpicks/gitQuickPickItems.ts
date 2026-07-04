@@ -122,7 +122,7 @@ export namespace BranchQuickPickItem {
 			label: `${Strings.pad('$(git-branch)', 0, 2)}${branch.starred ? '$(star-full) ' : ''}${branch.name}${
 				checked ? `${GlyphChars.Space.repeat(2)}$(check)${GlyphChars.Space}` : ''
 			}`,
-			description: description,
+			description,
 			alwaysShow: options.alwaysShow,
 			buttons: options.buttons,
 			picked: picked ?? branch.current,
@@ -162,7 +162,7 @@ export namespace CommitQuickPickItem {
 					)}${commit.getFormattedDiffStatus({ compact: true })}`,
 					alwaysShow: options.alwaysShow,
 					buttons: options.buttons,
-					picked: picked,
+					picked,
 					item: commit,
 				};
 
@@ -179,7 +179,7 @@ export namespace CommitQuickPickItem {
 				)}${commit.getFormattedDiffStatus({ compact: true })}`,
 				alwaysShow: options.alwaysShow,
 				buttons: options.buttons,
-				picked: picked,
+				picked,
 				item: commit,
 			};
 
@@ -194,7 +194,7 @@ export namespace CommitQuickPickItem {
 				}${Strings.pad(GlyphChars.Dot, 2, 2)}${commit.getFormattedDiffStatus({ compact: true })}`,
 				alwaysShow: options.alwaysShow,
 				buttons: options.buttons,
-				picked: picked,
+				picked,
 				item: commit,
 			};
 			return item;
@@ -212,7 +212,7 @@ export namespace CommitQuickPickItem {
 			})}`,
 			alwaysShow: options.alwaysShow,
 			buttons: options.buttons,
-			picked: picked,
+			picked,
 			item: commit,
 		};
 		return item;
@@ -231,7 +231,7 @@ export namespace ContributorQuickPickItem {
 			label: contributor.name,
 			description: contributor.email,
 			alwaysShow: options.alwaysShow,
-			picked: picked,
+			picked,
 			item: contributor,
 		};
 		return item;
@@ -257,10 +257,10 @@ export namespace RefQuickPickItem {
 				description: '',
 				alwaysShow: options.alwaysShow,
 				buttons: options.buttons,
-				picked: picked,
+				picked,
 				item: GitReference.create(ref, repoPath, { refType: 'revision', name: 'Working Tree' }),
 				current: false,
-				ref: ref,
+				ref,
 				remote: false,
 			};
 		}
@@ -271,10 +271,10 @@ export namespace RefQuickPickItem {
 				description: '',
 				alwaysShow: options.alwaysShow,
 				buttons: options.buttons,
-				picked: picked,
+				picked,
 				item: GitReference.create(ref, repoPath, { refType: 'revision', name: 'HEAD' }),
 				current: false,
-				ref: ref,
+				ref,
 				remote: false,
 			};
 		}
@@ -287,10 +287,10 @@ export namespace RefQuickPickItem {
 				description: '',
 				alwaysShow: options.alwaysShow,
 				buttons: options.buttons,
-				picked: picked,
+				picked,
 				item: gitRef,
 				current: false,
-				ref: ref,
+				ref,
 				remote: false,
 			};
 		}
@@ -300,10 +300,10 @@ export namespace RefQuickPickItem {
 			description: options.ref ? `$(git-commit) ${ref}` : '',
 			alwaysShow: options.alwaysShow,
 			buttons: options.buttons,
-			picked: picked,
+			picked,
 			item: gitRef,
 			current: false,
-			ref: ref,
+			ref,
 			remote: false,
 		};
 
@@ -368,10 +368,10 @@ export namespace RepositoryQuickPickItem {
 
 		const item: RepositoryQuickPickItem = {
 			label: repository.formattedName,
-			description: description,
+			description,
 			alwaysShow: options.alwaysShow,
 			buttons: options.buttons,
-			picked: picked,
+			picked,
 			item: repository,
 			repoPath: repository.path,
 		};
@@ -423,10 +423,10 @@ export namespace TagQuickPickItem {
 			label: `${Strings.pad('$(tag)', 0, 2)}${tag.name}${
 				options.checked ? `${GlyphChars.Space.repeat(2)}$(check)${GlyphChars.Space}` : ''
 			}`,
-			description: description,
+			description,
 			alwaysShow: options.alwaysShow,
 			buttons: options.buttons,
-			picked: picked,
+			picked,
 			item: tag,
 			current: false,
 			ref: tag.name,

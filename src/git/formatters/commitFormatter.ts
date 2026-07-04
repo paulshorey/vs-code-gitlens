@@ -1,7 +1,7 @@
 'use strict';
 import { Uri } from 'vscode';
 import type { HoverCommandsActionContext, OpenPullRequestActionContext } from '../../api/gitlens';
-import { getPresenceDataUri } from '../../avatars';
+import { type ContactPresence, getPresenceDataUri } from '../../avatars';
 import {
 	Commands,
 	ConnectRemoteProviderCommand,
@@ -17,7 +17,6 @@ import { GlyphChars } from '../../constants';
 import { Container } from '../../container';
 import { emojify } from '../../emojis';
 import { Iterables, Promises, Strings } from '../../system';
-import { ContactPresence } from '../../vsls/vsls';
 import {
 	GitCommit,
 	GitLogCommit,

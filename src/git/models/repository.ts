@@ -581,7 +581,7 @@ export class Repository implements Disposable {
 	async getLastFetched(): Promise<number> {
 		if (this._lastFetched == null) {
 			const hasRemotes = await this.hasRemotes();
-			if (!hasRemotes || Container.vsls.isMaybeGuest) return 0;
+			if (!hasRemotes) return 0;
 		}
 
 		try {

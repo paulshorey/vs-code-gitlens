@@ -1,10 +1,10 @@
 'use strict';
 import { TextEditor, Uri } from 'vscode';
 import { Container } from '../container';
-import { GitReference } from '../git/git';
-import { GitUri } from '../git/gitUri';
 import { ActiveEditorCachedCommand, command, CommandContext, Commands, getCommandUri } from './common';
 import { executeGitCommand } from './gitCommands';
+import { GitReference } from '../git/git';
+import { GitUri } from '../git/gitUri';
 
 export interface ShowQuickBranchHistoryCommandArgs {
 	repoPath?: string;

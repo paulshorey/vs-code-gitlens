@@ -28,7 +28,7 @@ export class ShowQuickCommitCommand extends ActiveEditorCachedCommand {
 	static getMarkdownCommandArgs(sha: string, repoPath?: string): string;
 	static getMarkdownCommandArgs(args: ShowQuickCommitCommandArgs): string;
 	static getMarkdownCommandArgs(argsOrSha: ShowQuickCommitCommandArgs | string, repoPath?: string): string {
-		const args = typeof argsOrSha === 'string' ? { sha: argsOrSha, repoPath: repoPath } : argsOrSha;
+		const args = typeof argsOrSha === 'string' ? { sha: argsOrSha, repoPath } : argsOrSha;
 		return super.getMarkdownCommandArgsCore<ShowQuickCommitCommandArgs>(Commands.ShowQuickCommit, args);
 	}
 
@@ -126,7 +126,10 @@ export class ShowQuickCommitCommand extends ActiveEditorCachedCommand {
 				}
 
 				if (args.repoLog == null) {
-					args.commit = await Container.git.getCommit(repoPath!, args.sha);
+					const sha = args.sha;
+					if (sha == null || repoPath == null) return;
+
+					args.commit = await Container.git.getCommit(repoPath, sha);
 				}
 			}
 
@@ -149,7 +152,7 @@ export class ShowQuickCommitCommand extends ActiveEditorCachedCommand {
 			void (await executeGitCommand({
 				command: 'show',
 				state: {
-					repo: repoPath!,
+					repo: repoPath,
 					reference: args.commit as GitLogCommit,
 				},
 			}));

@@ -2,7 +2,6 @@
 import { Uri } from 'vscode';
 import { GitActions } from '../commands';
 import { Container } from '../container';
-import { GitUri } from '../git/gitUri';
 import {
 	Command,
 	command,
@@ -12,6 +11,7 @@ import {
 	isCommandContextViewNodeHasRepoPath,
 	isCommandContextViewNodeHasRepository,
 } from './common';
+import { GitUri } from '../git/gitUri';
 
 const enum ResourceGroupType {
 	Merge,

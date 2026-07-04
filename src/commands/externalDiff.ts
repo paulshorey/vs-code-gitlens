@@ -78,8 +78,8 @@ export class ExternalDiffCommand extends Command {
 				{
 					uri: GitUri.fromFile(context.node.file, context.node.file.repoPath ?? context.node.repoPath),
 					staged: context.node.commit.isUncommittedStaged || context.node.file.indexStatus != null,
-					ref1: ref1,
-					ref2: ref2,
+					ref1,
+					ref2,
 				},
 			];
 
@@ -203,7 +203,7 @@ export class ExternalDiffCommand extends Command {
 					ref1: file.ref1,
 					ref2: file.ref2,
 					staged: file.staged,
-					tool: tool,
+					tool,
 				});
 			}
 		} catch (ex) {

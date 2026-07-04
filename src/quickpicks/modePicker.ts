@@ -24,7 +24,7 @@ export namespace ModePicker {
 					modeCfg.name
 				} mode`,
 				description: modeCfg.description ? `\u00a0${GlyphChars.Dash}\u00a0 ${modeCfg.description}` : '',
-				key: key,
+				key,
 			};
 			return item;
 		});

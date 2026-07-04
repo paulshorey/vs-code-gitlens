@@ -181,7 +181,7 @@ export class ViewFileDecorationProvider implements FileDecorationProvider, Dispo
 
 		return {
 			badge: GlyphChars.Check,
-			color: color,
+			color,
 			tooltip: 'Current Branch',
 		};
 	}

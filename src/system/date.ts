@@ -115,10 +115,10 @@ export interface DateFormatter {
 export function getFormatter(date: Date): DateFormatter {
 	const formatter = dayjs(date);
 	return {
-		fromNow: function (locale?: string) {
+		fromNow (locale?: string) {
 			return (locale ? formatter.locale(locale) : formatter).fromNow();
 		},
-		format: function (format: string) {
+		format (format: string) {
 			return formatter.format(format);
 		},
 	};

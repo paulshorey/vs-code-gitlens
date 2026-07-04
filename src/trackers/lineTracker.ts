@@ -195,7 +195,7 @@ export class LineTracker<T> implements Disposable {
 	}
 
 	protected trigger(reason: 'editor' | 'selection') {
-		this.onLinesChanged({ editor: this._editor, selections: this.selections, reason: reason });
+		this.onLinesChanged({ editor: this._editor, selections: this.selections, reason });
 	}
 
 	private _linesChangedDebounced: Functions.Deferrable<(e: LinesChangeEvent) => void> | undefined;

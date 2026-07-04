@@ -20,7 +20,7 @@ export class CommitFilesQuickPickItem extends CommandQuickPickItem {
 					separator: ', ',
 					empty: 'No files changed',
 				})}${fileName ? `${Strings.pad(GlyphChars.Dot, 2, 2)}${fileName}` : ''}`,
-				picked: picked,
+				picked,
 			},
 			undefined,
 			undefined,
@@ -38,7 +38,7 @@ export class CommitFileQuickPickItem extends CommandQuickPickItem {
 		super({
 			label: `${Strings.pad(GitFile.getStatusCodicon(file.status), 0, 2)}${paths.basename(file.fileName)}`,
 			description: GitFile.getFormattedDirectory(file, true),
-			picked: picked,
+			picked,
 		});
 
 		// TODO@eamodio - add line diff details

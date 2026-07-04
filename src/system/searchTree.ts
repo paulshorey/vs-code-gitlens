@@ -339,7 +339,7 @@ export class TernarySearchTree<K, V> {
 			}
 			return res;
 		};
-		return { next: next };
+		return { next };
 	}
 
 	forEach(callback: (value: V, index: K) => any) {

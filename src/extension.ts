@@ -249,72 +249,13 @@ async function ensureVisibleViews(context: ExtensionContext) {
 	}
 }
 
-async function showWelcomeOrWhatsNew(context: ExtensionContext, version: string, previousVersion: string | undefined) {
+function showWelcomeOrWhatsNew(_context: ExtensionContext, version: string, previousVersion: string | undefined) {
 	if (previousVersion == null) {
-		Logger.log(`GitLens first-time install; window.focused=${window.state.focused}`);
-		if (Container.config.showWelcomeOnInstall === false) return;
-
-		if (window.state.focused) {
-			await context.globalState.update(GlobalState.PendingWelcomeOnFocus, undefined);
-			await commands.executeCommand(Commands.ShowWelcomePage);
-		} else {
-			// Save pending on window getting focus
-			await context.globalState.update(GlobalState.PendingWelcomeOnFocus, true);
-			const disposable = window.onDidChangeWindowState(e => {
-				if (!e.focused) return;
-
-				disposable.dispose();
-
-				// If the window is now focused and we are pending the welcome, clear the pending state and show the welcome
-				if (context.globalState.get(GlobalState.PendingWelcomeOnFocus) === true) {
-					void context.globalState.update(GlobalState.PendingWelcomeOnFocus, undefined);
-					if (Container.config.showWelcomeOnInstall) {
-						void commands.executeCommand(Commands.ShowWelcomePage);
-					}
-				}
-			});
-			context.subscriptions.push(disposable);
-		}
-
+		Logger.log(`GitLens first-time install (welcome page removed in this fork)`);
 		return;
 	}
 
 	if (previousVersion !== version) {
-		Logger.log(`GitLens upgraded from v${previousVersion} to v${version}; window.focused=${window.state.focused}`);
-	}
-
-	const [major, minor] = version.split('.').map(v => parseInt(v, 10));
-	const [prevMajor, prevMinor] = previousVersion.split('.').map(v => parseInt(v, 10));
-	if (
-		(major === prevMajor && minor === prevMinor) ||
-		// Don't notify on downgrades
-		major < prevMajor ||
-		(major === prevMajor && minor < prevMinor)
-	) {
-		return;
-	}
-
-	if (major !== prevMajor && Container.config.showWhatsNewAfterUpgrades) {
-		if (window.state.focused) {
-			await context.globalState.update(GlobalState.PendingWhatsNewOnFocus, undefined);
-			await Messages.showWhatsNewMessage(version);
-		} else {
-			// Save pending on window getting focus
-			await context.globalState.update(GlobalState.PendingWhatsNewOnFocus, true);
-			const disposable = window.onDidChangeWindowState(e => {
-				if (!e.focused) return;
-
-				disposable.dispose();
-
-				// If the window is now focused and we are pending the what's new, clear the pending state and show the what's new
-				if (context.globalState.get(GlobalState.PendingWhatsNewOnFocus) === true) {
-					void context.globalState.update(GlobalState.PendingWhatsNewOnFocus, undefined);
-					if (Container.config.showWhatsNewAfterUpgrades) {
-						void Messages.showWhatsNewMessage(version);
-					}
-				}
-			});
-			context.subscriptions.push(disposable);
-		}
+		Logger.log(`GitLens upgraded from v${previousVersion} to v${version}`);
 	}
 }

@@ -42,7 +42,7 @@ async function ensureRepo(repo: string | Repository): Promise<Repository> {
 export namespace GitActions {
 	export async function browseAtRevision(uri: Uri, options?: { before?: boolean; openInNewWindow?: boolean }) {
 		void (await executeEditorCommand<BrowseRepoAtRevisionCommandArgs>(Commands.BrowseRepoAtRevision, undefined, {
-			uri: uri,
+			uri,
 			before: options?.before,
 			openInNewWindow: options?.openInNewWindow,
 		}));
@@ -51,33 +51,33 @@ export namespace GitActions {
 	export function cherryPick(repo?: string | Repository, refs?: GitRevisionReference | GitRevisionReference[]) {
 		return executeGitCommand({
 			command: 'cherry-pick',
-			state: { repo: repo, references: refs },
+			state: { repo, references: refs },
 		});
 	}
 
 	export function fetch(repos?: string | string[] | Repository | Repository[], ref?: GitBranchReference) {
-		return executeGitCommand({ command: 'fetch', state: { repos: repos, reference: ref } });
+		return executeGitCommand({ command: 'fetch', state: { repos, reference: ref } });
 	}
 
 	export function merge(repo?: string | Repository, ref?: GitReference) {
-		return executeGitCommand({ command: 'merge', state: { repo: repo, reference: ref } });
+		return executeGitCommand({ command: 'merge', state: { repo, reference: ref } });
 	}
 
 	export function pull(repos?: string | string[] | Repository | Repository[], ref?: GitBranchReference) {
-		return executeGitCommand({ command: 'pull', state: { repos: repos, reference: ref } });
+		return executeGitCommand({ command: 'pull', state: { repos, reference: ref } });
 	}
 
 	export function push(repos?: string | string[] | Repository | Repository[], force?: boolean, ref?: GitReference) {
 		return executeGitCommand({
 			command: 'push',
-			state: { repos: repos, flags: force ? ['--force'] : [], reference: ref },
+			state: { repos, flags: force ? ['--force'] : [], reference: ref },
 		});
 	}
 
 	export function rebase(repo?: string | Repository, ref?: GitReference, interactive: boolean = true) {
 		return executeGitCommand({
 			command: 'rebase',
-			state: { repo: repo, reference: ref, flags: interactive ? ['--interactive'] : [] },
+			state: { repo, reference: ref, flags: interactive ? ['--interactive'] : [] },
 		});
 	}
 
@@ -89,21 +89,21 @@ export namespace GitActions {
 		return executeGitCommand({
 			command: 'reset',
 			confirm: flags == null || flags.includes('--hard'),
-			state: { repo: repo, reference: ref, flags: flags },
+			state: { repo, reference: ref, flags },
 		});
 	}
 
 	export function revert(repo?: string | Repository, refs?: GitRevisionReference | GitRevisionReference[]) {
 		return executeGitCommand({
 			command: 'revert',
-			state: { repo: repo, references: refs },
+			state: { repo, references: refs },
 		});
 	}
 
 	export function switchTo(repos?: string | string[] | Repository | Repository[], ref?: GitReference) {
 		return executeGitCommand({
 			command: 'switch',
-			state: { repos: repos, reference: ref },
+			state: { repos, reference: ref },
 		});
 	}
 
@@ -113,9 +113,9 @@ export namespace GitActions {
 				command: 'branch',
 				state: {
 					subcommand: 'create',
-					repo: repo,
+					repo,
 					reference: ref,
-					name: name,
+					name,
 				},
 			});
 		}
@@ -125,7 +125,7 @@ export namespace GitActions {
 				command: 'branch',
 				state: {
 					subcommand: 'delete',
-					repo: repo,
+					repo,
 					references: refs,
 				},
 			});
@@ -136,9 +136,9 @@ export namespace GitActions {
 				command: 'branch',
 				state: {
 					subcommand: 'rename',
-					repo: repo,
+					repo,
 					reference: ref,
-					name: name,
+					name,
 				},
 			});
 		}
@@ -393,7 +393,7 @@ export namespace GitActions {
 					ref1: GitRevision.isUncommitted(commitOrRef.ref) ? '' : `${commitOrRef.ref}^`,
 					ref2: GitRevision.isUncommitted(commitOrRef.ref) ? '' : commitOrRef.ref,
 					staged: GitRevision.isUncommittedStaged(commitOrRef.ref) || file.indexStatus != null,
-					tool: tool,
+					tool,
 				},
 			);
 		}
@@ -486,7 +486,7 @@ export namespace GitActions {
 			options = { preserveFocus: true, preview: false, ...options };
 
 			void (await executeEditorCommand<OpenWorkingFileCommandArgs>(Commands.OpenWorkingFile, undefined, {
-				uri: uri,
+				uri,
 				showOptions: options,
 			}));
 		}
@@ -639,7 +639,7 @@ export namespace GitActions {
 		export function addAuthors(repo?: string | Repository, contributors?: GitContributor | GitContributor[]) {
 			return executeGitCommand({
 				command: 'co-authors',
-				state: { repo: repo, contributors: contributors },
+				state: { repo, contributors },
 			});
 		}
 	}
@@ -650,9 +650,9 @@ export namespace GitActions {
 				command: 'tag',
 				state: {
 					subcommand: 'create',
-					repo: repo,
+					repo,
 					reference: ref,
-					name: name,
+					name,
 				},
 			});
 		}
@@ -662,7 +662,7 @@ export namespace GitActions {
 				command: 'tag',
 				state: {
 					subcommand: 'delete',
-					repo: repo,
+					repo,
 					references: refs,
 				},
 			});
@@ -752,7 +752,7 @@ export namespace GitActions {
 				repo = r;
 			}
 
-			void (await repo.fetch({ remote: remote }));
+			void (await repo.fetch({ remote }));
 		}
 
 		export async function prune(repo: string | Repository, remote: string) {
@@ -776,21 +776,21 @@ export namespace GitActions {
 		export function apply(repo?: string | Repository, ref?: GitStashReference) {
 			return executeGitCommand({
 				command: 'stash',
-				state: { subcommand: 'apply', repo: repo, reference: ref },
+				state: { subcommand: 'apply', repo, reference: ref },
 			});
 		}
 
 		export function drop(repo?: string | Repository, ref?: GitStashReference) {
 			return executeGitCommand({
 				command: 'stash',
-				state: { subcommand: 'drop', repo: repo, reference: ref },
+				state: { subcommand: 'drop', repo, reference: ref },
 			});
 		}
 
 		export function pop(repo?: string | Repository, ref?: GitStashReference) {
 			return executeGitCommand({
 				command: 'stash',
-				state: { subcommand: 'pop', repo: repo, reference: ref },
+				state: { subcommand: 'pop', repo, reference: ref },
 			});
 		}
 
@@ -799,9 +799,9 @@ export namespace GitActions {
 				command: 'stash',
 				state: {
 					subcommand: 'push',
-					repo: repo,
-					uris: uris,
-					message: message,
+					repo,
+					uris,
+					message,
 					flags: keepStaged ? ['--keep-index'] : undefined,
 				},
 			});

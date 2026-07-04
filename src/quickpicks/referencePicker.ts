@@ -232,20 +232,20 @@ export namespace ReferencePicker {
 					.filter(b => !b.remote)
 					.map(b =>
 						BranchQuickPickItem.create(b, isPicked(b.ref), {
-							buttons: buttons,
+							buttons,
 							current: 'checkmark',
 							ref: true,
 							status: true,
 						}),
 					),
 				...tags.map(t =>
-					TagQuickPickItem.create(t, isPicked(t.ref), { buttons: buttons, message: false, ref: true, type: true }),
+					TagQuickPickItem.create(t, isPicked(t.ref), { buttons, message: false, ref: true, type: true }),
 				),
 				...branches
 					.filter(b => b.remote)
 					.map(b =>
 						BranchQuickPickItem.create(b, isPicked(b.ref), {
-							buttons: buttons,
+							buttons,
 							current: 'checkmark',
 							ref: true,
 							status: true,
@@ -257,7 +257,7 @@ export namespace ReferencePicker {
 			items = await Promise.all<ReferencesQuickPickItem>(
 				branches.map(b =>
 					BranchQuickPickItem.create(b, isPicked(b.ref), {
-						buttons: buttons,
+						buttons,
 						current: 'checkmark',
 						ref: true,
 						status: true,
@@ -267,7 +267,7 @@ export namespace ReferencePicker {
 			);
 		} else if (wantTags) {
 			items = await Promise.all<ReferencesQuickPickItem>(
-				tags.map(t => TagQuickPickItem.create(t, isPicked(t.ref), { buttons: buttons, message: false, ref: true })),
+				tags.map(t => TagQuickPickItem.create(t, isPicked(t.ref), { buttons, message: false, ref: true })),
 			);
 		} else {
 			items = [];

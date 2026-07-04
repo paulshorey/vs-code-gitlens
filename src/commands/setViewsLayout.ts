@@ -1,9 +1,8 @@
 'use strict';
 import { commands, window } from 'vscode';
-import { viewsConfigKeys } from '../configuration';
 import { command, Command, Commands } from './common';
 
-const viewIds = ['gitlens.views.welcome', ...viewsConfigKeys.map(view => `gitlens.views.${view}`)];
+const viewIds = ['gitlens.views.searchAndCompare'];
 
 enum ViewsLayout {
 	GitLens = 'gitlens',

@@ -6,7 +6,13 @@ import { Container } from './container';
 import { GitRevisionReference } from './git/git';
 import { Functions, Iterables, Strings } from './system';
 import { MillisecondsPerDay, MillisecondsPerHour, MillisecondsPerMinute } from './system/date';
-import { ContactPresenceStatus } from './vsls/vsls';
+
+export type ContactPresenceStatus = 'online' | 'away' | 'busy' | 'dnd' | 'offline';
+
+export type ContactPresence = {
+	status: ContactPresenceStatus;
+	statusText: string;
+};
 
 const _onDidFetchAvatar = new EventEmitter<{ email: string }>();
 _onDidFetchAvatar.event(

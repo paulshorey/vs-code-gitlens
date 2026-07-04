@@ -214,7 +214,7 @@ export async function getBranchesAndOrTags(
 					b,
 					picked != null && (typeof picked === 'string' ? b.ref === picked : picked.includes(b.ref)),
 					{
-						buttons: buttons,
+						buttons,
 						current: singleRepo ? 'checkmark' : false,
 						ref: singleRepo,
 						status: singleRepo,
@@ -232,7 +232,7 @@ export async function getBranchesAndOrTags(
 					t,
 					picked != null && (typeof picked === 'string' ? t.ref === picked : picked.includes(t.ref)),
 					{
-						buttons: buttons,
+						buttons,
 						message: false, //singleRepo,
 						ref: singleRepo,
 					},
@@ -249,7 +249,7 @@ export async function getBranchesAndOrTags(
 					b,
 					picked != null && (typeof picked === 'string' ? b.ref === picked : picked.includes(b.ref)),
 					{
-						buttons: buttons,
+						buttons,
 						current: singleRepo ? 'checkmark' : false,
 						ref: singleRepo,
 						status: singleRepo,
@@ -261,7 +261,7 @@ export async function getBranchesAndOrTags(
 				t,
 				picked != null && (typeof picked === 'string' ? t.ref === picked : picked.includes(t.ref)),
 				{
-					buttons: buttons,
+					buttons,
 					message: false, //singleRepo,
 					ref: singleRepo,
 					type: true,
@@ -275,7 +275,7 @@ export async function getBranchesAndOrTags(
 					b,
 					picked != null && (typeof picked === 'string' ? b.ref === picked : picked.includes(b.ref)),
 					{
-						buttons: buttons,
+						buttons,
 						current: singleRepo ? 'checkmark' : false,
 						ref: singleRepo,
 						status: singleRepo,
@@ -441,8 +441,8 @@ export async function* pickBranchStep<
 ): AsyncStepResultGenerator<GitBranchReference> {
 	const branches = await getBranches(state.repo, {
 		buttons: [QuickCommandButtons.RevealInSideBar],
-		filter: filter,
-		picked: picked,
+		filter,
+		picked,
 	});
 
 	const step = QuickCommand.createPickStep<BranchQuickPickItem>({
@@ -498,9 +498,9 @@ export async function* pickBranchesStep<
 ): AsyncStepResultGenerator<GitBranchReference[]> {
 	const branches = await getBranches(state.repo, {
 		buttons: [QuickCommandButtons.RevealInSideBar],
-		filter: filter,
-		picked: picked,
-		sort: sort,
+		filter,
+		picked,
+		sort,
 	});
 
 	const step = QuickCommand.createPickStep<BranchQuickPickItem>({
@@ -566,8 +566,8 @@ export async function* pickBranchOrTagStep<
 	const getBranchesAndOrTagsFn = async () => {
 		return getBranchesAndOrTags(state.repo, context.showTags ? ['branches', 'tags'] : ['branches'], {
 			buttons: [QuickCommandButtons.RevealInSideBar],
-			filter: filter,
-			picked: picked,
+			filter,
+			picked,
 			sort: true,
 		});
 	};
@@ -583,7 +583,7 @@ export async function* pickBranchOrTagStep<
 				  )}(or enter a reference using #)`,
 		matchOnDescription: true,
 		matchOnDetail: true,
-		value: value,
+		value,
 		items:
 			branchesAndOrTags.length === 0
 				? [DirectiveQuickPickItem.create(Directive.Back, true), DirectiveQuickPickItem.create(Directive.Cancel)]
@@ -636,7 +636,7 @@ export async function* pickBranchOrTagStep<
 				void GitActions.Commit.reveal(item, { select: true, focus: false, expand: true });
 			}
 		},
-		onValidateValue: getValidateGitReferenceFn(state.repo, { ranges: ranges }),
+		onValidateValue: getValidateGitReferenceFn(state.repo, { ranges }),
 	});
 	const selection: StepSelection<typeof step> = yield step;
 	return QuickCommand.canPickStepContinue(step, state, selection) ? selection[0].item : StepResult.Break;
@@ -799,7 +799,7 @@ export async function* pickCommitStep<
 	const step = QuickCommand.createPickStep<CommandQuickPickItem | CommitQuickPickItem>({
 		title: appendReposToTitle(`${context.title}${titleContext ?? ''}`, state, context),
 		placeholder: typeof placeholder === 'string' ? placeholder : placeholder(context, log),
-		ignoreFocusOut: ignoreFocusOut,
+		ignoreFocusOut,
 		matchOnDescription: true,
 		matchOnDetail: true,
 		value: typeof picked === 'string' && log?.count === 0 ? picked : undefined,
@@ -1036,7 +1036,7 @@ export async function* pickContributorsStep<
 		title: appendReposToTitle(context.title, state, context),
 		allowEmpty: true,
 		multiselect: true,
-		placeholder: placeholder,
+		placeholder,
 		matchOnDescription: true,
 		items: (await Container.git.getContributors(state.repo.path)).map(c =>
 			ContributorQuickPickItem.create(c, message?.includes(c.toCoauthor())),
@@ -1058,7 +1058,7 @@ export async function* pickRepositoryStep<
 
 	const step = QuickCommand.createPickStep<RepositoryQuickPickItem>({
 		title: context.title,
-		placeholder: placeholder,
+		placeholder,
 		items:
 			context.repos.length === 0
 				? [DirectiveQuickPickItem.create(Directive.Cancel)]
@@ -1165,7 +1165,7 @@ export function* pickStashStep<
 	const step = QuickCommand.createPickStep<CommitQuickPickItem<GitStashCommit>>({
 		title: appendReposToTitle(`${context.title}${titleContext ?? ''}`, state, context),
 		placeholder: typeof placeholder === 'string' ? placeholder : placeholder(context, stash),
-		ignoreFocusOut: ignoreFocusOut,
+		ignoreFocusOut,
 		matchOnDescription: true,
 		matchOnDetail: true,
 		items:
@@ -1229,8 +1229,8 @@ export async function* pickTagsStep<
 ): AsyncStepResultGenerator<GitTagReference[]> {
 	const tags = await getTags(state.repo, {
 		buttons: [QuickCommandButtons.RevealInSideBar],
-		filter: filter,
-		picked: picked,
+		filter,
+		picked,
 	});
 
 	const step = QuickCommand.createPickStep<TagQuickPickItem>({

@@ -66,8 +66,8 @@ export class DiffWithRevisionCommand extends ActiveEditorCommand {
 								sha: '',
 								uri: gitUri,
 							},
-							line: args!.line,
-							showOptions: args!.showOptions,
+							line: args.line,
+							showOptions: args.showOptions,
 						}));
 					},
 					showOtherReferences: CommandQuickPickItem.fromCommand(

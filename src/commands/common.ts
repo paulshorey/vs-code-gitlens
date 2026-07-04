@@ -71,12 +71,9 @@ export enum Commands {
 	DisconnectRemoteProvider = 'gitlens.disconnectRemoteProvider',
 	DisableDebugLogging = 'gitlens.disableDebugLogging',
 	EnableDebugLogging = 'gitlens.enableDebugLogging',
-	DisableRebaseEditor = 'gitlens.disableRebaseEditor',
-	EnableRebaseEditor = 'gitlens.enableRebaseEditor',
 	ExternalDiff = 'gitlens.externalDiff',
 	ExternalDiffAll = 'gitlens.externalDiffAll',
 	FetchRepositories = 'gitlens.fetchRepositories',
-	InviteToLiveShare = 'gitlens.inviteToLiveShare',
 	OpenBlamePriorToChange = 'gitlens.openBlamePriorToChange',
 	OpenBranchesOnRemote = 'gitlens.openBranchesOnRemote',
 	OpenBranchOnRemote = 'gitlens.openBranchOnRemote',
@@ -133,19 +130,6 @@ export enum Commands {
 	ShowQuickCommitRevisionInDiffRight = 'gitlens.showQuickRevisionDetailsInDiffRight',
 	ShowQuickStashList = 'gitlens.showQuickStashList',
 	ShowSearchAndCompareView = 'gitlens.showSearchAndCompareView',
-	ShowSettingsPage = 'gitlens.showSettingsPage',
-	ShowSettingsPageAndJumpToBranchesView = 'gitlens.showSettingsPage#branches-view',
-	ShowSettingsPageAndJumpToCommitsView = 'gitlens.showSettingsPage#commits-view',
-	ShowSettingsPageAndJumpToContributorsView = 'gitlens.showSettingsPage#contributors-view',
-	ShowSettingsPageAndJumpToFileHistoryView = 'gitlens.showSettingsPage#file-history-view',
-	ShowSettingsPageAndJumpToLineHistoryView = 'gitlens.showSettingsPage#line-history-view',
-	ShowSettingsPageAndJumpToRemotesView = 'gitlens.showSettingsPage#remotes-view',
-	ShowSettingsPageAndJumpToRepositoriesView = 'gitlens.showSettingsPage#repositories-view',
-	ShowSettingsPageAndJumpToSearchAndCompareView = 'gitlens.showSettingsPage#search-compare-view',
-	ShowSettingsPageAndJumpToStashesView = 'gitlens.showSettingsPage#stashes-view',
-	ShowSettingsPageAndJumpToTagsView = 'gitlens.showSettingsPage#tags-view',
-	ShowSettingsPageAndJumpToViews = 'gitlens.showSettingsPage#views',
-	ShowWelcomePage = 'gitlens.showWelcomePage',
 	ShowWelcomeView = 'gitlens.showWelcomeView',
 	StashApply = 'gitlens.stashApply',
 	StashSave = 'gitlens.stashSave',
@@ -501,11 +485,11 @@ export abstract class Command implements Disposable {
 					const uris = rest[0];
 					if (uris != null && Array.isArray(uris) && uris.length !== 0 && uris[0] instanceof Uri) {
 						return [
-							{ command: command, type: 'uris', editor: editor, uri: uri, uris: uris },
+							{ command, type: 'uris', editor, uri, uris },
 							rest.slice(1),
 						];
 					}
-					return [{ command: command, type: 'uri', editor: editor, uri: uri }, rest];
+					return [{ command, type: 'uri', editor, uri }, rest];
 				}
 
 				args = args.slice(1);
@@ -517,7 +501,7 @@ export abstract class Command implements Disposable {
 
 		if (firstArg instanceof ViewNode) {
 			const [node, ...rest] = args as [ViewNode, any];
-			return [{ command: command, type: 'viewItem', node: node, uri: node.uri }, rest];
+			return [{ command, type: 'viewItem', node, uri: node.uri }, rest];
 		}
 
 		if (isScmResourceState(firstArg)) {
@@ -531,7 +515,7 @@ export abstract class Command implements Disposable {
 			}
 
 			return [
-				{ command: command, type: 'scm-states', scmResourceStates: states, uri: states[0].resourceUri },
+				{ command, type: 'scm-states', scmResourceStates: states, uri: states[0].resourceUri },
 				args.slice(count),
 			];
 		}
@@ -546,15 +530,15 @@ export abstract class Command implements Disposable {
 				groups.push(arg);
 			}
 
-			return [{ command: command, type: 'scm-groups', scmResourceGroups: groups }, args.slice(count)];
+			return [{ command, type: 'scm-groups', scmResourceGroups: groups }, args.slice(count)];
 		}
 
 		if (isGitTimelineItem(firstArg)) {
 			const [item, uri, ...rest] = args as [GitTimelineItem, Uri, any];
-			return [{ command: command, type: 'timeline-item:git', item: item, uri: uri }, rest];
+			return [{ command, type: 'timeline-item:git', item, uri }, rest];
 		}
 
-		return [{ command: command, type: 'unknown', editor: editor, uri: editor?.document.uri }, args];
+		return [{ command, type: 'unknown', editor, uri: editor?.document.uri }, args];
 	}
 }
 
@@ -588,8 +572,8 @@ export abstract class ActiveEditorCachedCommand extends ActiveEditorCommand {
 
 	protected override _execute(command: string, ...args: any[]): any {
 		lastCommand = {
-			command: command,
-			args: args,
+			command,
+			args,
 		};
 		return super._execute(command, ...args);
 	}
@@ -725,7 +709,7 @@ export function openWorkspace(
 ): void {
 	if (options?.location === OpenWorkspaceLocation.AddToWorkspace) {
 		const count = workspace.workspaceFolders?.length ?? 0;
-		return void workspace.updateWorkspaceFolders(count, 0, { uri: uri, name: options?.name });
+		return void workspace.updateWorkspaceFolders(count, 0, { uri, name: options?.name });
 	}
 
 	return void commands.executeCommand(BuiltInCommands.OpenFolder, uri, {

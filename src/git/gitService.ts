@@ -41,8 +41,6 @@ import {
 	TernarySearchTree,
 	Versions,
 } from '../system';
-import { CachedBlame, CachedDiff, CachedLog, GitDocumentState, TrackedDocument } from '../trackers/gitDocumentTracker';
-import { vslsUriPrefixRegex } from '../vsls/vsls';
 import {
 	Authentication,
 	BranchDateFormatting,
@@ -100,6 +98,7 @@ import {
 	TagSortOptions,
 } from './git';
 import { GitUri } from './gitUri';
+import { CachedBlame, CachedDiff, CachedLog, GitDocumentState, TrackedDocument } from '../trackers/gitDocumentTracker';
 import { GitReflogParser, GitShortLogParser } from './parsers/parsers';
 import { RemoteProvider, RemoteProviderFactory, RemoteProviders, RichRemoteProvider } from './remotes/factory';
 import { fsExists, isWindows } from './shell';
@@ -187,7 +186,7 @@ export class GitService implements Disposable {
 	}
 
 	get readonly() {
-		return Container.vsls.readonly;
+		return false;
 	}
 
 	get useCaching() {
@@ -249,10 +248,6 @@ export class GitService implements Disposable {
 			CommitDateFormatting.reset();
 			PullRequestDateFormatting.reset();
 		}
-
-		if (configuration.changed(e, 'views.contributors.showAllBranches')) {
-			this._contributorsCache.clear();
-		}
 	}
 
 	@debug()
@@ -284,41 +279,24 @@ export class GitService implements Disposable {
 
 		for (const f of e.added) {
 			const { scheme } = f.uri;
-			if (scheme !== DocumentSchemes.File && scheme !== DocumentSchemes.Vsls) continue;
+			if (scheme !== DocumentSchemes.File) continue;
 
-			if (scheme === DocumentSchemes.Vsls) {
-				if (Container.vsls.isMaybeGuest) {
-					const guest = await Container.vsls.guest();
-					if (guest != null) {
-						const repositories = await guest.getRepositoriesInFolder(
-							f,
-							this.onAnyRepositoryChanged.bind(this),
-						);
-						for (const r of repositories) {
-							if (!this._repositoryTree.has(r.path)) {
-								this._repositoryTree.set(r.path, r);
-							}
-						}
-					}
+			// Search for and add all repositories (nested and/or submodules)
+			const repositories = await this.repositorySearch(f);
+			for (const r of repositories) {
+				if (!this._repositoryTree.has(r.path)) {
+					this._repositoryTree.set(r.path, r);
 				}
-			} else {
-				// Search for and add all repositories (nested and/or submodules)
-				const repositories = await this.repositorySearch(f);
-				for (const r of repositories) {
-					if (!this._repositoryTree.has(r.path)) {
-						this._repositoryTree.set(r.path, r);
-					}
 
-					if (autoRepositoryDetection === true || autoRepositoryDetection === 'subFolders') {
-						void GitService.openBuiltInGitRepository(r.path);
-					}
+				if (autoRepositoryDetection === true || autoRepositoryDetection === 'subFolders') {
+					void GitService.openBuiltInGitRepository(r.path);
 				}
 			}
 		}
 
 		for (const f of e.removed) {
 			const { fsPath, scheme } = f.uri;
-			if (scheme !== DocumentSchemes.File && scheme !== DocumentSchemes.Vsls) continue;
+			if (scheme !== DocumentSchemes.File) continue;
 
 			const repos = this._repositoryTree.findSuperstr(fsPath);
 			const reposToDelete =
@@ -619,7 +597,7 @@ export class GitService implements Disposable {
 
 	@log()
 	async branchContainsCommit(repoPath: string, name: string, ref: string): Promise<boolean> {
-		let data = await Git.branch__containsOrPointsAt(repoPath, ref, { mode: 'contains', name: name });
+		let data = await Git.branch__containsOrPointsAt(repoPath, ref, { mode: 'contains', name });
 		data = data?.trim();
 		return Boolean(data);
 	}
@@ -766,7 +744,7 @@ export class GitService implements Disposable {
 				location: ProgressLocation.Notification,
 				title: `Fetching ${repositories.length} repositories`,
 			},
-			() => Promise.all(repositories!.map(r => r.fetch({ progress: false, ...options }))),
+			() => Promise.all(repositories.map(r => r.fetch({ progress: false, ...options }))),
 		);
 	}
 
@@ -795,7 +773,7 @@ export class GitService implements Disposable {
 				location: ProgressLocation.Notification,
 				title: `Pulling ${repositories.length} repositories`,
 			},
-			() => Promise.all(repositories!.map(r => r.pull({ progress: false, ...options }))),
+			() => Promise.all(repositories.map(r => r.pull({ progress: false, ...options }))),
 		);
 	}
 
@@ -831,7 +809,7 @@ export class GitService implements Disposable {
 				location: ProgressLocation.Notification,
 				title: `Pushing ${repositories.length} repositories`,
 			},
-			() => Promise.all(repositories!.map(r => r.push({ progress: false, ...options }))),
+			() => Promise.all(repositories.map(r => r.push({ progress: false, ...options }))),
 		);
 	}
 
@@ -1065,7 +1043,7 @@ export class GitService implements Disposable {
 			const author = blame.authors.get(commit.author)!;
 			return {
 				author: { ...author, lineCount: commit.lines.length },
-				commit: commit,
+				commit,
 				line: blameLine,
 			};
 		}
@@ -1120,7 +1098,7 @@ export class GitService implements Disposable {
 			const author = blame.authors.get(commit.author)!;
 			return {
 				author: { ...author, lineCount: commit.lines.length },
-				commit: commit,
+				commit,
 				line: blameLine,
 			};
 		}
@@ -1214,8 +1192,8 @@ export class GitService implements Disposable {
 		return {
 			repoPath: uri.repoPath!,
 			authors: sortedAuthors,
-			commits: commits,
-			lines: lines,
+			commits,
+			lines,
 			allLines: blame.lines,
 		};
 	}
@@ -1275,7 +1253,7 @@ export class GitService implements Disposable {
 				for (const branch of branches) {
 					const weight = weightedDefaultBranches.get(branch.name)!;
 					if (weightedBranch == null || weightedBranch.weight < weight) {
-						weightedBranch = { weight: weight, branch: branch };
+						weightedBranch = { weight, branch };
 					}
 
 					if (weightedBranch.weight === maxDefaultBranchWeight) break;
@@ -1478,7 +1456,7 @@ export class GitService implements Disposable {
 
 	@log()
 	async getCommit(repoPath: string, ref: string): Promise<GitLogCommit | undefined> {
-		const log = await this.getLog(repoPath, { limit: 2, ref: ref });
+		const log = await this.getLog(repoPath, { limit: 2, ref });
 		if (log == null) return undefined;
 
 		return log.commits.get(ref) ?? Iterables.first(log.commits.values());
@@ -1956,7 +1934,7 @@ export class GitService implements Disposable {
 		try {
 			const data = await Git.log(repoPath, ref, {
 				...options,
-				limit: limit,
+				limit,
 				merges: options.merges == null ? true : options.merges,
 				ordering: options.ordering ?? Container.config.advanced.commitOrdering,
 				similarityThreshold: Container.config.advanced.similarityThreshold,
@@ -1974,8 +1952,8 @@ export class GitService implements Disposable {
 			);
 
 			if (log != null) {
-				const opts = { ...options, ref: ref };
-				log.query = (limit: number | undefined) => this.getLog(repoPath, { ...opts, limit: limit });
+				const opts = { ...options, ref };
+				log.query = (limit: number | undefined) => this.getLog(repoPath, { ...opts, limit });
 				if (log.hasMore) {
 					log.more = this.getLogMoreFn(log, opts);
 				}
@@ -2009,7 +1987,7 @@ export class GitService implements Disposable {
 			const data = await Git.log(repoPath, ref, {
 				authors: options.authors,
 				format: 'refs',
-				limit: limit,
+				limit,
 				merges: options.merges == null ? true : options.merges,
 				reverse: options.reverse,
 				similarityThreshold: Container.config.advanced.similarityThreshold,
@@ -2080,14 +2058,14 @@ export class GitService implements Disposable {
 
 			const mergedLog: GitLog = {
 				repoPath: log.repoPath,
-				authors: authors,
-				commits: commits,
+				authors,
+				commits,
 				sha: log.sha,
 				range: undefined,
 				count: commits.size,
 				limit: moreUntil == null ? (log.limit ?? 0) + moreLimit : undefined,
 				hasMore: moreUntil == null ? moreLog.hasMore : true,
-				query: (limit: number | undefined) => this.getLog(log.repoPath, { ...options, limit: limit }),
+				query: (limit: number | undefined) => this.getLog(log.repoPath, { ...options, limit }),
 			};
 			mergedLog.more = this.getLogMoreFn(mergedLog, options);
 
@@ -2179,8 +2157,8 @@ export class GitService implements Disposable {
 			const data = await Git.log__search(repoPath, args, {
 				ordering: Container.config.advanced.commitOrdering,
 				...options,
-				limit: limit,
-				useShow: useShow,
+				limit,
+				useShow,
 			});
 			const log = GitLogParser.parse(
 				data,
@@ -2196,7 +2174,7 @@ export class GitService implements Disposable {
 
 			if (log != null) {
 				log.query = (limit: number | undefined) =>
-					this.getLogForSearch(repoPath, search, { ...options, limit: limit });
+					this.getLogForSearch(repoPath, search, { ...options, limit });
 				if (log.hasMore) {
 					log.more = this.getLogForSearchMoreFn(log, search, options);
 				}
@@ -2218,7 +2196,7 @@ export class GitService implements Disposable {
 
 			const moreLog = await this.getLogForSearch(log.repoPath, search, {
 				...options,
-				limit: limit,
+				limit,
 				skip: log.count,
 			});
 			if (moreLog == null) {
@@ -2241,15 +2219,15 @@ export class GitService implements Disposable {
 
 			const mergedLog: GitLog = {
 				repoPath: log.repoPath,
-				authors: authors,
-				commits: commits,
+				authors,
+				commits,
 				sha: log.sha,
 				range: log.range,
 				count: commits.size,
 				limit: (log.limit ?? 0) + limit,
 				hasMore: moreLog.hasMore,
 				query: (limit: number | undefined) =>
-					this.getLogForSearch(log.repoPath, search, { ...options, limit: limit }),
+					this.getLogForSearch(log.repoPath, search, { ...options, limit }),
 			};
 			mergedLog.more = this.getLogForSearchMoreFn(mergedLog, search, options);
 
@@ -2371,10 +2349,10 @@ export class GitService implements Disposable {
 								...log,
 								limit: options.limit,
 								count: commits.size,
-								commits: commits,
-								authors: authors,
+								commits,
+								authors,
 								query: (limit: number | undefined) =>
-									this.getLogForFile(repoPath, fileName, { ...opts, limit: limit }),
+									this.getLogForFile(repoPath, fileName, { ...opts, limit }),
 							};
 
 							return log;
@@ -2426,7 +2404,7 @@ export class GitService implements Disposable {
 		key: string,
 		cc: LogCorrelationContext | undefined,
 	): Promise<GitLog | undefined> {
-		if (!(await this.isTracked(fileName, repoPath, { ref: ref }))) {
+		if (!(await this.isTracked(fileName, repoPath, { ref }))) {
 			Logger.log(cc, `Skipping log; '${fileName}' is not tracked`);
 			return emptyPromise as Promise<GitLog>;
 		}
@@ -2459,9 +2437,9 @@ export class GitService implements Disposable {
 			);
 
 			if (log != null) {
-				const opts = { ...options, ref: ref, range: range };
+				const opts = { ...options, ref, range };
 				log.query = (limit: number | undefined) =>
-					this.getLogForFile(repoPath, fileName, { ...opts, limit: limit });
+					this.getLogForFile(repoPath, fileName, { ...opts, limit });
 				if (log.hasMore) {
 					log.more = this.getLogForFileMoreFn(log, fileName, opts);
 				}
@@ -2537,15 +2515,15 @@ export class GitService implements Disposable {
 
 			const mergedLog: GitLog = {
 				repoPath: log.repoPath,
-				authors: authors,
-				commits: commits,
+				authors,
+				commits,
 				sha: log.sha,
 				range: log.range,
 				count: commits.size,
 				limit: moreUntil == null ? (log.limit ?? 0) + moreLimit : undefined,
 				hasMore: moreUntil == null ? moreLog.hasMore : true,
 				query: (limit: number | undefined) =>
-					this.getLogForFile(log.repoPath, fileName, { ...options, limit: limit }),
+					this.getLogForFile(log.repoPath, fileName, { ...options, limit }),
 			};
 
 			if (options.renames) {
@@ -2594,8 +2572,8 @@ export class GitService implements Disposable {
 
 				status = {
 					type: 'merge',
-					repoPath: repoPath,
-					mergeBase: mergeBase,
+					repoPath,
+					mergeBase,
 					HEAD: GitReference.create(merge, repoPath, { refType: 'revision' }),
 					current: GitReference.fromBranch(branch!),
 					incoming:
@@ -2657,8 +2635,8 @@ export class GitService implements Disposable {
 
 				status = {
 					type: 'rebase',
-					repoPath: repoPath,
-					mergeBase: mergeBase,
+					repoPath,
+					mergeBase,
 					HEAD: GitReference.create(rebase, repoPath, { refType: 'revision' }),
 					onto: GitReference.create(onto, repoPath, { refType: 'revision' }),
 					current:
@@ -2743,7 +2721,7 @@ export class GitService implements Disposable {
 				skip === 0
 					? GitUri.fromFile(fileName, repoPath, ref)
 					: (await this.getNextUri(repoPath, uri, ref, skip - 1))!,
-			next: next,
+			next,
 		};
 	}
 
@@ -2767,7 +2745,7 @@ export class GitService implements Disposable {
 
 		const fileName = GitUri.relativeTo(uri, repoPath);
 		let data = await Git.log__file(repoPath, fileName, ref, {
-			filters: filters,
+			filters,
 			format: 'simple',
 			limit: skip + 1,
 			ordering: Container.config.advanced.commitOrdering,
@@ -2860,7 +2838,7 @@ export class GitService implements Disposable {
 			if (current == null || current.sha === GitRevision.deletedOrMissing) return undefined;
 
 			return {
-				current: current,
+				current,
 				previous: await this.getPreviousUri(repoPath, uri, undefined, skip, undefined, firstParent),
 			};
 		}
@@ -2873,7 +2851,7 @@ export class GitService implements Disposable {
 		if (current == null || current.sha === GitRevision.deletedOrMissing) return undefined;
 
 		return {
-			current: current,
+			current,
 			previous: await this.getPreviousUri(repoPath, uri, ref, skip, undefined, firstParent),
 		};
 	}
@@ -2963,13 +2941,13 @@ export class GitService implements Disposable {
 				if (current.sha === GitRevision.deletedOrMissing) return undefined;
 
 				return {
-					current: current,
+					current,
 					previous: await this.getPreviousUri(repoPath, uri, undefined, skip, editorLine),
 					line: editorLine,
 				};
 			}
 
-			const gitUri = new GitUri(uri, { repoPath: repoPath, sha: ref });
+			const gitUri = new GitUri(uri, { repoPath, sha: ref });
 			const blameLine = await this.getBlameForLine(gitUri, editorLine);
 			if (blameLine == null) return undefined;
 
@@ -2991,7 +2969,7 @@ export class GitService implements Disposable {
 		if (current.sha === GitRevision.deletedOrMissing) return undefined;
 
 		return {
-			current: current,
+			current,
 			previous: previous ?? (await this.getPreviousUri(repoPath, uri, ref, skip, editorLine)),
 			line: editorLine,
 		};
@@ -3019,7 +2997,7 @@ export class GitService implements Disposable {
 		let data;
 		try {
 			data = await Git.log__file(repoPath, fileName, ref, {
-				firstParent: firstParent,
+				firstParent,
 				format: 'simple',
 				limit: skip + 2,
 				ordering: Container.config.advanced.commitOrdering,
@@ -3208,7 +3186,7 @@ export class GitService implements Disposable {
 
 			const moreLog = await this.getIncomingActivity(reflog.repoPath, {
 				...options,
-				limit: limit,
+				limit,
 				skip: reflog.total,
 			});
 			if (moreLog == null) {
@@ -3391,23 +3369,17 @@ export class GitService implements Disposable {
 		// Recheck this._repositoryTree.get(rp) to make sure we haven't already tried adding this due to awaits
 		if (this._repositoryTree.get(rp) != null) return rp;
 
-		const isVslsScheme =
-			typeof filePathOrUri === 'string' ? undefined : filePathOrUri.scheme === DocumentSchemes.Vsls;
-
-		// If this new repo is inside one of our known roots and we we don't already know about, add it
-		const root = this.findRepositoryForPath(this._repositoryTree, rp, isVslsScheme);
+		const root = this.findRepositoryForPath(this._repositoryTree, rp);
 
 		let folder;
 		if (root != null) {
-			// Not sure why I added this for vsls (I can't see a reason for it anymore), but if it is added it will break submodules
-			// rp = root.path;
 			folder = root.folder;
 		} else {
-			folder = workspace.getWorkspaceFolder(GitUri.file(rp, isVslsScheme));
+			folder = workspace.getWorkspaceFolder(GitUri.file(rp));
 			if (folder == null) {
 				const parts = rp.split(slash);
 				folder = {
-					uri: GitUri.file(rp, isVslsScheme),
+					uri: GitUri.file(rp),
 					name: parts[parts.length - 1],
 					index: this._repositoryTree.count(),
 				};
@@ -3591,31 +3563,24 @@ export class GitService implements Disposable {
 	): Promise<Repository | undefined> {
 		const repositoryTree = await this.getRepositoryTree();
 
-		let isVslsScheme;
-
 		let path: string;
 		if (typeof repoPathOrUri === 'string') {
 			const repo = repositoryTree.get(repoPathOrUri);
 			if (repo != null) return repo;
 
 			path = repoPathOrUri;
-			isVslsScheme = undefined;
-		} else {
-			if (GitUri.is(repoPathOrUri)) {
-				if (repoPathOrUri.repoPath) {
-					const repo = repositoryTree.get(repoPathOrUri.repoPath);
-					if (repo != null) return repo;
-				}
-
-				path = repoPathOrUri.fsPath;
-			} else {
-				path = repoPathOrUri.fsPath;
+		} else if (GitUri.is(repoPathOrUri)) {
+			if (repoPathOrUri.repoPath) {
+				const repo = repositoryTree.get(repoPathOrUri.repoPath);
+				if (repo != null) return repo;
 			}
 
-			isVslsScheme = repoPathOrUri.scheme === DocumentSchemes.Vsls;
+			path = repoPathOrUri.fsPath;
+		} else {
+			path = repoPathOrUri.fsPath;
 		}
 
-		const repo = this.findRepositoryForPath(repositoryTree, path, isVslsScheme);
+		const repo = this.findRepositoryForPath(repositoryTree, path);
 		if (repo == null) return undefined;
 
 		// Make sure the file is tracked in this repo before returning -- it could be from a submodule
@@ -3631,18 +3596,8 @@ export class GitService implements Disposable {
 	private findRepositoryForPath(
 		repositoryTree: TernarySearchTree<string, Repository>,
 		path: string,
-		isVslsScheme: boolean | undefined,
 	): Repository | undefined {
-		let repo = repositoryTree.findSubstr(path);
-		// If we can't find the repo and we are a guest, check if we are a "root" workspace
-		if (repo == null && isVslsScheme !== false && Container.vsls.isMaybeGuest) {
-			if (!vslsUriPrefixRegex.test(path)) {
-				path = Strings.normalizePath(path);
-				const vslsPath = `/~0${path.startsWith(slash) ? path : `/${path}`}`;
-				repo = repositoryTree.findSubstr(vslsPath);
-			}
-		}
-		return repo;
+		return repositoryTree.findSubstr(path);
 	}
 
 	async getLocalInfoFromRemoteUri(
@@ -3696,7 +3651,7 @@ export class GitService implements Disposable {
 			similarityThreshold: Container.config.advanced.similarityThreshold,
 		});
 		const status = GitStatusParser.parse(data, repoPath, porcelainVersion);
-		if (status == null || !status.files.length) return undefined;
+		if (!status?.files.length) return undefined;
 
 		return status.files[0];
 	}
@@ -3709,7 +3664,7 @@ export class GitService implements Disposable {
 			similarityThreshold: Container.config.advanced.similarityThreshold,
 		});
 		const status = GitStatusParser.parse(data, repoPath, porcelainVersion);
-		if (status == null || !status.files.length) return [];
+		if (!status?.files.length) return [];
 
 		return status.files;
 	}
@@ -3796,7 +3751,7 @@ export class GitService implements Disposable {
 	async getTreeFileForRevision(repoPath: string, fileName: string, ref: string): Promise<GitTree | undefined> {
 		if (repoPath == null || fileName == null || fileName.length === 0) return undefined;
 
-		const data = await Git.ls_tree(repoPath, ref, { fileName: fileName });
+		const data = await Git.ls_tree(repoPath, ref, { fileName });
 		const trees = GitTreeParser.parse(data);
 		return trees?.length ? trees[0] : undefined;
 	}
@@ -3953,8 +3908,7 @@ export class GitService implements Disposable {
 			scheme === DocumentSchemes.File ||
 			scheme === DocumentSchemes.Git ||
 			scheme === DocumentSchemes.GitLens ||
-			scheme === DocumentSchemes.PRs ||
-			scheme === DocumentSchemes.Vsls
+			scheme === DocumentSchemes.PRs
 		);
 	}
 
@@ -4022,7 +3976,7 @@ export class GitService implements Disposable {
 			// Even if we have a ref, check first to see if the file exists (that way the cache will be better reused)
 			let tracked = Boolean(await Git.ls_files(repoPath == null ? emptyStr : repoPath, fileName));
 			if (!tracked && ref != null) {
-				tracked = Boolean(await Git.ls_files(repoPath == null ? emptyStr : repoPath, fileName, { ref: ref }));
+				tracked = Boolean(await Git.ls_files(repoPath == null ? emptyStr : repoPath, fileName, { ref }));
 				// If we still haven't found this file, make sure it wasn't deleted in that ref (i.e. check the previous)
 				if (!tracked) {
 					tracked = Boolean(
@@ -4261,8 +4215,8 @@ export class GitService implements Disposable {
 
 		return Git.stash__push(repoPath, message, {
 			...options,
-			pathspecs: pathspecs,
-			stdin: stdin,
+			pathspecs,
+			stdin,
 		});
 	}
 

@@ -121,8 +121,8 @@ export class GitUri extends (Uri as any as UriEx) {
 
 		super({
 			scheme: uri.scheme,
-			authority: authority,
-			path: path,
+			authority,
+			path,
 			query: uri.query,
 			fragment: uri.fragment,
 		});
@@ -213,13 +213,8 @@ export class GitUri extends (Uri as any as UriEx) {
 		return [authority, fsPath];
 	}
 
-	static file(path: string, useVslsScheme?: boolean) {
-		const uri = Uri.file(path);
-		if (Container.vsls.isMaybeGuest && useVslsScheme !== false) {
-			return uri.with({ scheme: DocumentSchemes.Vsls });
-		}
-
-		return uri;
+	static file(path: string) {
+		return Uri.file(path);
 	}
 
 	static fromCommit(commit: GitCommit, previous: boolean = false) {
@@ -238,13 +233,13 @@ export class GitUri extends (Uri as any as UriEx) {
 		);
 		return ref == null || ref.length === 0
 			? new GitUri(uri, repoPath)
-			: new GitUri(uri, { repoPath: repoPath, sha: ref });
+			: new GitUri(uri, { repoPath, sha: ref });
 	}
 
 	static fromRepoPath(repoPath: string, ref?: string) {
 		return ref == null || ref.length === 0
 			? new GitUri(GitUri.file(repoPath), repoPath)
-			: new GitUri(GitUri.file(repoPath), { repoPath: repoPath, sha: ref });
+			: new GitUri(GitUri.file(repoPath), { repoPath, sha: ref });
 	}
 
 	static fromRevisionUri(uri: Uri): GitUri {
@@ -314,7 +309,7 @@ export class GitUri extends (Uri as any as UriEx) {
 
 				const commitish: GitCommitish = {
 					fileName: data.fileName,
-					repoPath: repoPath,
+					repoPath,
 					sha: data.isBase ? data.baseCommit : data.headCommit,
 				};
 				return new GitUri(uri, commitish);
@@ -493,7 +488,7 @@ export class GitUri extends (Uri as any as UriEx) {
 		const filePath = Strings.normalizePath(fileName, { addLeadingSlash: true });
 		const data: UriRevisionData = {
 			path: filePath,
-			ref: ref,
+			ref,
 			repoPath: Strings.normalizePath(repoPath!),
 		};
 

@@ -89,7 +89,10 @@ export class CopyMessageToClipboardCommand extends ActiveEditorCommand {
 				}
 
 				// Get the full commit message -- since blame only returns the summary
-				const commit = await Container.git.getCommit(repoPath!, args.sha);
+				const sha = args.sha;
+				if (sha == null || repoPath == null) return;
+
+				const commit = await Container.git.getCommit(repoPath, sha);
 				if (commit == null) return;
 
 				args.message = commit.message;

@@ -2,9 +2,9 @@
 import { window } from 'vscode';
 import { RemoteResourceType } from '../git/git';
 import { Logger } from '../logger';
-import { ResultsCommitsNode } from '../views/nodes';
 import { Command, command, CommandContext, Commands, executeCommand } from './common';
 import { OpenOnRemoteCommandArgs } from './openOnRemote';
+import { ResultsCommitsNode } from '../views/nodes';
 
 export interface OpenComparisonOnRemoteCommandArgs {
 	clipboard?: boolean;

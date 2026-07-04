@@ -58,12 +58,12 @@ export namespace DirectiveQuickPickItem {
 		}
 
 		const item: DirectiveQuickPickItem = {
-			label: label,
+			label,
 			description: options.description,
 			detail: options.detail,
 			alwaysShow: true,
-			picked: picked,
-			directive: directive,
+			picked,
+			directive,
 		};
 
 		return item;
@@ -176,7 +176,7 @@ export class ActionQuickPickItem extends CommandQuickPickItem {
 export type FlagsQuickPickItem<T> = QuickPickItemOfT<T[]>;
 export namespace FlagsQuickPickItem {
 	export function create<T>(flags: T[], item: T[], options: QuickPickItem) {
-		return { ...options, item: item, picked: hasFlags(flags, item) };
+		return { ...options, item, picked: hasFlags(flags, item) };
 	}
 }
 

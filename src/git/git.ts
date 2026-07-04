@@ -75,18 +75,6 @@ export interface GitCommandOptions extends RunOptions<BufferEncoding | 'buffer' 
 const pendingCommands = new Map<string, Promise<string | Buffer>>();
 
 export async function git<TOut extends string | Buffer>(options: GitCommandOptions, ...args: any[]): Promise<TOut> {
-	if (Container.vsls.isMaybeGuest) {
-		if (options.local !== true) {
-			const guest = await Container.vsls.guest();
-			if (guest !== undefined) {
-				return guest.git<TOut>(options, ...args);
-			}
-		} else {
-			// Since we will have a live share path here, just blank it out
-			options.cwd = emptyStr;
-		}
-	}
-
 	const start = process.hrtime();
 
 	const { configs, correlationKey, errors: errorHandling, encoding, ...opts } = options;
@@ -318,7 +306,7 @@ export namespace Git {
 			}
 		}
 
-		return git<string>({ cwd: root, stdin: stdin }, ...params, '--', file);
+		return git<string>({ cwd: root, stdin }, ...params, '--', file);
 	}
 
 	export function blame__contents(
@@ -1274,7 +1262,7 @@ export namespace Git {
 	export async function rev_parse__show_toplevel(cwd: string): Promise<string | undefined> {
 		try {
 			const data = await git<string>(
-				{ cwd: cwd, errors: GitErrorHandling.Throw },
+				{ cwd, errors: GitErrorHandling.Throw },
 				'rev-parse',
 				'--show-toplevel',
 			);

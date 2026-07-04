@@ -195,11 +195,11 @@ export class OpenFileOnRemoteCommand extends ActiveEditorCommand {
 					type: sha == null ? RemoteResourceType.File : RemoteResourceType.Revision,
 					branchOrTag: args.branchOrTag ?? 'HEAD',
 					fileName: gitUri.relativePath,
-					range: range,
+					range,
 					sha: sha ?? undefined,
 				},
 				repoPath: gitUri.repoPath,
-				remotes: remotes,
+				remotes,
 				clipboard: args.clipboard,
 			}));
 		} catch (ex) {

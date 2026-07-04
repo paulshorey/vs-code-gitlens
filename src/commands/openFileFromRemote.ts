@@ -52,7 +52,7 @@ export class OpenFileFromRemoteCommand extends Command {
 		}
 
 		try {
-			await openEditor(local.uri, { selection: selection, rethrow: true });
+			await openEditor(local.uri, { selection, rethrow: true });
 		} catch {
 			const uris = await window.showOpenDialog({
 				title: 'Open local file',

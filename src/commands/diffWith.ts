@@ -44,7 +44,7 @@ export class DiffWithCommand extends Command {
 						sha: '',
 						uri: commit.uri,
 					},
-					line: line,
+					line,
 				};
 			} else {
 				args = {
@@ -57,7 +57,7 @@ export class DiffWithCommand extends Command {
 						sha: commit.sha,
 						uri: commit.uri,
 					},
-					line: line,
+					line,
 				};
 			}
 		} else {

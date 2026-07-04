@@ -8,10 +8,10 @@ import {
 	PullRequest,
 	PullRequestState,
 	RichRemoteProvider,
-} from '../git/git';
-import { Account } from '../git/models/author';
-import { Logger } from '../logger';
-import { debug } from '../system';
+} from '../git';
+import { Account } from '../models/author';
+import { Logger } from '../../logger';
+import { debug } from '../../system';
 
 export class GitHubApi {
 	@debug({

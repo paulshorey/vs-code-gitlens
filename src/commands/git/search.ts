@@ -328,11 +328,12 @@ export class SearchGitCommand extends QuickCommand<State> {
 				state.counter = value ? 3 : 2;
 
 				const operations = SearchPattern.parseSearchOperations(value);
+				const firstOperation = operations.keys().next().value as SearchOperators | undefined;
 
 				quickpick.title = appendReposToTitle(
-					operations.size === 0 || operations.size > 1
+					operations.size === 0 || operations.size > 1 || firstOperation == null
 						? context.title
-						: `Commit ${searchOperatorToTitleMap.get(operations.keys().next().value)!}`,
+						: `Commit ${searchOperatorToTitleMap.get(firstOperation)!}`,
 					state,
 					context,
 				);

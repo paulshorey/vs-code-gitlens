@@ -36,7 +36,7 @@ export class CopyOrOpenRemoteCommandQuickPickItem extends CommandQuickPickItem {
 		super({
 			label: `$(repo) ${remote.provider.path}`,
 			description: remote.name,
-			buttons: buttons,
+			buttons,
 		});
 	}
 
@@ -62,7 +62,7 @@ export class CopyOrOpenRemoteCommandQuickPickItem extends CommandQuickPickItem {
 
 			resource = {
 				...resource,
-				base: { branch: branch, remote: { path: this.remote.path, url: this.remote.url } },
+				base: { branch, remote: { path: this.remote.path, url: this.remote.url } },
 			};
 		} else if (
 			resource.type === RemoteResourceType.File &&
@@ -82,7 +82,7 @@ export class CopyOrOpenRemoteCommandQuickPickItem extends CommandQuickPickItem {
 
 			const sha = branchesOrTags?.[0]?.sha;
 			if (sha) {
-				resource = { ...resource, type: RemoteResourceType.Revision, sha: sha };
+				resource = { ...resource, type: RemoteResourceType.Revision, sha };
 			}
 		}
 
@@ -98,8 +98,8 @@ export class CopyRemoteResourceCommandQuickPickItem extends CommandQuickPickItem
 	constructor(remotes: GitRemote<RemoteProvider>[], resource: RemoteResource) {
 		const providers = GitRemote.getHighlanderProviders(remotes);
 		const commandArgs: OpenOnRemoteCommandArgs = {
-			resource: resource,
-			remotes: remotes,
+			resource,
+			remotes,
 			clipboard: true,
 		};
 		super(
@@ -121,8 +121,8 @@ export class OpenRemoteResourceCommandQuickPickItem extends CommandQuickPickItem
 	constructor(remotes: GitRemote<RemoteProvider>[], resource: RemoteResource) {
 		const providers = GitRemote.getHighlanderProviders(remotes);
 		const commandArgs: OpenOnRemoteCommandArgs = {
-			resource: resource,
-			remotes: remotes,
+			resource,
+			remotes,
 			clipboard: false,
 		};
 		super(

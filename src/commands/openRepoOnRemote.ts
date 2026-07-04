@@ -57,7 +57,7 @@ export class OpenRepoOnRemoteCommand extends ActiveEditorCommand {
 				resource: {
 					type: RemoteResourceType.Repo,
 				},
-				repoPath: repoPath,
+				repoPath,
 				remote: args?.remote,
 				clipboard: args?.clipboard,
 			}));
