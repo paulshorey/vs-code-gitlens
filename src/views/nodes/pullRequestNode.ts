@@ -4,13 +4,12 @@ import { Colors } from '../../constants';
 import { GitBranch, GitCommit, PullRequest, PullRequestState } from '../../git/git';
 import { GitUri } from '../../git/gitUri';
 import { ViewsWithPullRequests } from '../viewBase';
-import { RepositoryNode } from './repositoryNode';
-import { ContextValues, ViewNode } from './viewNode';
+import { ContextValues, getRepoNodeId, ViewNode } from './viewNode';
 
 export class PullRequestNode extends ViewNode<ViewsWithPullRequests> {
 	static key = ':pullrequest';
 	static getId(repoPath: string, id: string, ref: string): string {
-		return `${RepositoryNode.getId(repoPath)}${this.key}(${id}):${ref}`;
+		return `${getRepoNodeId(repoPath)}${this.key}(${id}):${ref}`;
 	}
 
 	constructor(

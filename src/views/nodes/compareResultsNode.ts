@@ -6,17 +6,16 @@ import { GitRevision } from '../../git/git';
 import { GitUri } from '../../git/gitUri';
 import { debug, gate, log, Strings } from '../../system';
 import { SearchAndCompareView } from '../searchAndCompareView';
-import { RepositoryNode } from './repositoryNode';
 import { CommitsQueryResults, ResultsCommitsNode } from './resultsCommitsNode';
 import { FilesQueryResults, ResultsFilesNode } from './resultsFilesNode';
-import { ContextValues, ViewNode } from './viewNode';
+import { ContextValues, getRepoNodeId, ViewNode } from './viewNode';
 
 let instanceId = 0;
 
 export class CompareResultsNode extends ViewNode<SearchAndCompareView> {
 	static key = ':compare-results';
 	static getId(repoPath: string, ref1: string, ref2: string, instanceId: number): string {
-		return `${RepositoryNode.getId(repoPath)}${this.key}(${ref1}|${ref2}):${instanceId}`;
+		return `${getRepoNodeId(repoPath)}${this.key}(${ref1}|${ref2}):${instanceId}`;
 	}
 
 	static getPinnableId(repoPath: string, ref1: string, ref2: string) {
@@ -56,8 +55,13 @@ export class CompareResultsNode extends ViewNode<SearchAndCompareView> {
 		return CompareResultsNode.getId(this.repoPath, this._ref.ref, this._compareWith.ref, this._instanceId);
 	}
 
+	// Stable identity for a comparison (independent of instance), used to detect duplicates
+	get comparisonId(): string {
+		return CompareResultsNode.getPinnableId(this.repoPath, this._ref.ref, this._compareWith.ref);
+	}
+
 	get canDismiss(): boolean {
-		return true;
+		return !this.pinned;
 	}
 
 	private readonly _order: number = Date.now();

@@ -7,17 +7,15 @@ import { Colors, GlyphChars } from '../../constants';
 import { Container } from '../../container';
 import { CommitFormatter, GitBranch, GitLogCommit, GitRevisionReference } from '../../git/git';
 import { Arrays, Strings } from '../../system';
-import { FileHistoryView } from '../fileHistoryView';
-import { TagsView } from '../tagsView';
 import { ViewsWithCommits } from '../viewBase';
 import { CommitFileNode } from './commitFileNode';
 import { FileNode, FolderNode } from './folderNode';
 import { PullRequestNode } from './pullRequestNode';
 import { ContextValues, ViewNode, ViewRefNode } from './viewNode';
 
-export class CommitNode extends ViewRefNode<ViewsWithCommits | FileHistoryView, GitRevisionReference> {
+export class CommitNode extends ViewRefNode<ViewsWithCommits, GitRevisionReference> {
 	constructor(
-		view: ViewsWithCommits | FileHistoryView,
+		view: ViewsWithCommits,
 		parent: ViewNode,
 		public readonly commit: GitLogCommit,
 		private readonly unpublished?: boolean,
@@ -69,12 +67,10 @@ export class CommitNode extends ViewRefNode<ViewsWithCommits | FileHistoryView, 
 			);
 		}
 
-		if (!(this.view instanceof TagsView) && !(this.view instanceof FileHistoryView)) {
-			if (this.view.config.pullRequests.enabled && this.view.config.pullRequests.showForCommits) {
-				const pr = await commit.getAssociatedPullRequest();
-				if (pr != null) {
-					children.splice(0, 0, new PullRequestNode(this.view, this, pr, commit));
-				}
+		if (this.view.config.pullRequests.enabled && this.view.config.pullRequests.showForCommits) {
+			const pr = await commit.getAssociatedPullRequest();
+			if (pr != null) {
+				children.splice(0, 0, new PullRequestNode(this.view, this, pr, commit));
 			}
 		}
 

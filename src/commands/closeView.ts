@@ -1,4 +1,6 @@
 'use strict';
+import { ContextKeys, setContext, SyncedState } from '../constants';
+import { Container } from '../container';
 import { command, Command, CommandContext, Commands } from './common';
 
 @command()
@@ -8,15 +10,15 @@ export class CloseViewCommand extends Command {
 	}
 
 	protected override preExecute(context: CommandContext) {
-		return Promise.resolve(this.execute(context.command as Commands));
+		return this.execute(context.command as Commands);
 	}
 
-	execute(command: Commands) {
+	async execute(command: Commands) {
 		switch (command) {
 			case Commands.CloseWelcomeView:
-				return undefined;
+				await Container.context.globalState.update(SyncedState.WelcomeViewVisible, true);
+				await setContext(ContextKeys.ViewsWelcomeVisible, true);
+				break;
 		}
-
-		return undefined;
 	}
 }

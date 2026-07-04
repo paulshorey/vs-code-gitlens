@@ -191,7 +191,7 @@ export class RevealInSideBarQuickPickItem extends CommandQuickPickItem {
 	constructor(
 		private readonly reference: GitRevisionReference,
 		item: QuickPickItem = {
-			label: `$(eye) Reveal ${GitReference.isStash(reference) ? 'Stash' : 'Commit'} in Panel`,
+			label: `$(eye) Reveal ${GitReference.isStash(reference) ? 'Stash' : 'Commit'} in Side Bar`,
 			description: GitReference.isStash(reference) ? '' : 'can take a while',
 		},
 	) {
@@ -219,7 +219,7 @@ export class SearchForCommitQuickPickItem extends CommandQuickPickItem {
 	constructor(
 		private readonly reference: GitRevisionReference,
 		item: QuickPickItem = {
-			label: '$(search) Search for Commit in Panel',
+			label: '$(search) Search for Commit in Side Bar',
 		},
 	) {
 		super(item, undefined, undefined);

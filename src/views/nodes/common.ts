@@ -33,7 +33,7 @@ export class MessageNode extends ViewNode {
 		item.contextValue = this._contextValue ?? ContextValues.Message;
 		item.description = this._description;
 		item.tooltip = this._tooltip;
-		item.iconPath = this._iconPath;
+		item.iconPath = this._iconPath as TreeItem['iconPath'];
 		return item;
 	}
 }
@@ -103,7 +103,7 @@ export class UpdateableMessageNode extends ViewNode {
 		item.id = this.id;
 		item.contextValue = ContextValues.Message;
 		item.tooltip = this._tooltip;
-		item.iconPath = this._iconPath;
+		item.iconPath = this._iconPath as TreeItem['iconPath'];
 		return item;
 	}
 

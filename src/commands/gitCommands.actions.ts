@@ -143,30 +143,17 @@ export namespace GitActions {
 			});
 		}
 
-		export async function reveal(
-			branch: GitBranchReference,
-			options?: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		export function reveal(
+			_branch: GitBranchReference,
+			_options?: {
 				select?: boolean;
 				focus?: boolean;
 				expand?: boolean | number;
 			},
 		) {
-			if (
-				!configuration.get(`views.${branch.remote ? 'remotes' : 'branches'}.reveal` as const) ||
-				(Container.repositoriesView.visible &&
-					!(branch.remote ? Container.remotesView.visible : Container.branchesView.visible))
-			) {
-				return Container.repositoriesView.revealBranch(branch, options);
-			}
-
-			let node;
-			if (branch.remote) {
-				node = await Container.remotesView.revealBranch(branch, options);
-			} else {
-				node = await Container.branchesView.revealBranch(branch, options);
-			}
-
-			return node;
+			// Reveal-in-side-bar is a no-op in this fork; the branches/remotes/repositories views were removed.
+			return undefined;
 		}
 	}
 
@@ -557,10 +544,7 @@ export namespace GitActions {
 				opts.selection = new Range(line, 0, line, 0);
 			}
 
-			const editor = await findOrOpenEditor(uri, opts);
-			if (annotationType != null && editor != null) {
-				void (await Container.fileAnnotations.show(editor, annotationType, { selection: { line: line } }));
-			}
+			await findOrOpenEditor(uri, opts);
 		}
 
 		export async function openFiles(commit: GitLogCommit): Promise<void>;
@@ -639,32 +623,16 @@ export namespace GitActions {
 			}));
 		}
 
-		export async function reveal(
-			commit: GitRevisionReference,
-			options?: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		export function reveal(
+			_commit: GitRevisionReference,
+			_options?: {
 				select?: boolean;
 				focus?: boolean;
 				expand?: boolean | number;
 			},
 		) {
-			if (
-				!configuration.get('views.commits.reveal') ||
-				(Container.repositoriesView.visible && !Container.commitsView.visible)
-			) {
-				return Container.repositoriesView.revealCommit(commit, options);
-			}
-
-			// TODO@eamodio stop duplicate notifications
-
-			let node = await Container.commitsView.revealCommit(commit, options);
-			if (node != null) return node;
-
-			node = await Container.branchesView.revealCommit(commit, options);
-			if (node != null) return node;
-
-			node = await Container.remotesView.revealCommit(commit, options);
-			if (node != null) return node;
-
+			// Reveal-in-side-bar is a no-op in this fork; the commits/branches/remotes/repositories views were removed.
 			return undefined;
 		}
 	}
@@ -702,23 +670,17 @@ export namespace GitActions {
 			});
 		}
 
-		export async function reveal(
-			tag: GitTagReference,
-			options?: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		export function reveal(
+			_tag: GitTagReference,
+			_options?: {
 				select?: boolean;
 				focus?: boolean;
 				expand?: boolean | number;
 			},
 		) {
-			if (
-				!configuration.get('views.tags.reveal') ||
-				(Container.repositoriesView.visible && !Container.tagsView.visible)
-			) {
-				return Container.repositoriesView.revealTag(tag, options);
-			}
-
-			const node = await Container.tagsView.revealTag(tag, options);
-			return node;
+			// Reveal-in-side-bar is a no-op in this fork; the tags/repositories views were removed.
+			return undefined;
 		}
 	}
 
@@ -800,23 +762,17 @@ export namespace GitActions {
 			void (await Container.git.pruneRemote(typeof repo === 'string' ? repo : repo.path, remote));
 		}
 
-		export async function reveal(
-			remote: GitRemote,
-			options?: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		export function reveal(
+			_remote: GitRemote,
+			_options?: {
 				select?: boolean;
 				focus?: boolean;
 				expand?: boolean | number;
 			},
 		) {
-			// if (
-			// 	configuration.get('views.repositories.enabled') &&
-			// 	(Container.repositoriesView.visible || !Container.remotesView.visible)
-			// ) {
-			// 	return Container.repositoriesView.revealRemote(remote, options);
-			// }
-
-			const node = await Container.remotesView.revealRemote(remote, options);
-			return node;
+			// Reveal-in-side-bar is a no-op in this fork; the remotes/repositories views were removed.
+			return undefined;
 		}
 	}
 
@@ -855,23 +811,17 @@ export namespace GitActions {
 			});
 		}
 
-		export async function reveal(
-			stash: GitStashReference,
-			options?: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		export function reveal(
+			_stash: GitStashReference,
+			_options?: {
 				select?: boolean;
 				focus?: boolean;
 				expand?: boolean | number;
 			},
 		) {
-			if (
-				!configuration.get('views.stashes.reveal') ||
-				(Container.repositoriesView.visible && !Container.stashesView.visible)
-			) {
-				return Container.repositoriesView.revealStash(stash, options);
-			}
-
-			const node = await Container.stashesView.revealStash(stash, options);
-			return node;
+			// Reveal-in-side-bar is a no-op in this fork; the stashes/repositories views were removed.
+			return undefined;
 		}
 	}
 }

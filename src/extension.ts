@@ -1,6 +1,6 @@
 /**
  * GitLens extension entry point.
- * Kylin fork of eamodio/vscode-gitlens (v11.7.0 base) with commit chart visualizations.
+ * PaulShorey fork of eamodio/vscode-gitlens (v11.7.0 base) with commit chart visualizations.
  */
 'use strict';
 import { commands, ExtensionContext, window, workspace } from 'vscode';
@@ -11,7 +11,6 @@ import { CreatePullRequestOnRemoteCommandArgs } from './commands/createPullReque
 import { configuration, Configuration, TraceLevel } from './configuration';
 import { ContextKeys, GlobalState, GlyphChars, setContext, SyncedState } from './constants';
 import { Container } from './container';
-import Controller from './controllers/mainController';
 import { Git, GitBranch, GitCommit } from './git/git';
 import { GitService } from './git/gitService';
 import { GitUri } from './git/gitUri';
@@ -28,23 +27,6 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 	const start = process.hrtime();
 
 	_context = context;
-
-	// Register Kylin-specific commands for commit chart views
-	const controller = new Controller(context);
-	const disposable = commands.registerCommand('kylin.viewCommits', () => {
-		void controller.showCommitsPanel();
-	});
-	context.subscriptions.push(disposable);
-	//
-
-	const disposablesinglefile = commands.registerCommand('kylin.viewfilehistory', () => {
-		void controller.showsinglefileCommitsPanel();
-	});
-	context.subscriptions.push(disposablesinglefile);
-
-
-
-
 
 	// Pretend we are enabled (until we know otherwise) and set the view contexts to reduce flashing on load
 	void setContext(ContextKeys.Enabled, true);
@@ -94,9 +76,14 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 
 	if (Logger.willLog('debug')) {
 		Logger.debug(
-			`GitLens (v${gitlensVersion}): syncedVersion=${syncedVersion}, localVersion=${localVersion}, previousVersion=${previousVersion}`,
+			`GitLens (v${gitlensVersion}): syncedVersion=${syncedVersion}, localVersion=${localVersion}, previousVersion=${previousVersion}, ${
+				SyncedState.WelcomeViewVisible
+			}=${context.globalState.get<boolean>(SyncedState.WelcomeViewVisible)}`,
 		);
 	}
+
+	void context.globalState.update(SyncedState.WelcomeViewVisible, true);
+	void setContext(ContextKeys.ViewsWelcomeVisible, true);
 
 	const enabled = workspace.getConfiguration('git', null).get<boolean>('enabled', true);
 	if (!enabled) {
@@ -144,6 +131,8 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 	const gitVersion = Git.getGitVersion();
 
 	notifyOnUnsupportedGitVersion(gitVersion);
+	void showWelcomeOrWhatsNew(context, gitlensVersion, previousVersion);
+
 	void context.globalState.update(GlobalState.Version, gitlensVersion);
 
 	// Only update our synced version if the new version is greater
@@ -193,7 +182,7 @@ export async function setEnabled(enabled: boolean): Promise<void> {
 }
 
 export function setKeysForSync(...keys: (SyncedState | string)[]) {
-	return _context?.globalState?.setKeysForSync([...keys, SyncedState.Version]);
+	return _context?.globalState?.setKeysForSync([...keys, SyncedState.Version, SyncedState.WelcomeViewVisible]);
 }
 
 export function notifyOnUnsupportedGitVersion(version: string) {
@@ -235,36 +224,97 @@ function registerBuiltInActionRunners(context: ExtensionContext): void {
 	);
 }
 
-const startupViewIds = [
-	'gitlens.views.welcome',
-	'gitlens.views.commits',
-	'gitlens.views.repositories',
-	'gitlens.views.fileHistory',
-	'gitlens.views.kylincommitsRelevant',
-	'gitlens.views.lineHistory',
-	'gitlens.views.branches',
-	'gitlens.views.remotes',
-	'gitlens.views.stashes',
-	'gitlens.views.tags',
-	'gitlens.views.contributors',
-	'gitlens.views.searchAndCompare',
-];
+const startupViewIds = ['gitlens.views.searchAndCompare'];
 
-async function ensureVisibleViews(_context: ExtensionContext) {
-	try {
-		await commands.executeCommand('vscode.moveViews', {
-			viewIds: startupViewIds,
-			destinationId: 'workbench.panel.extension.gitlens',
-		});
-	} catch {
+async function ensureVisibleViews(context: ExtensionContext) {
+	await context.globalState.update(SyncedState.WelcomeViewVisible, true);
+	await setContext(ContextKeys.ViewsWelcomeVisible, true);
+
+	// NOTE: this used to force every GitLens view into the `gitlens` activity-bar container
+	// on every activation via the undocumented `vscode.moveViews` command. That command's
+	// behavior changed in recent VS Code / Cursor builds (notably the Cursor 3.0 "New
+	// Interface" rework) and could leave the view blank or relocated; it also overrode any
+	// layout the user chose (e.g. dragging the view to the Panel). The views are already
+	// contributed to the `gitlens` container declaratively in package.json, so no forced
+	// relocation is needed for them to render. We only attempt a one-time location reset as
+	// a recovery from corrupted/stale view state after an update, and never steal focus.
+	const recoveryKey = `gitlens:viewLocationRecovery:${context.extension.packageJSON.version}`;
+	if (context.globalState.get<boolean>(recoveryKey) !== true) {
+		await context.globalState.update(recoveryKey, true);
 		for (const viewId of startupViewIds) {
 			try {
 				await commands.executeCommand(`${viewId}.resetViewLocation`);
 			} catch {}
 		}
 	}
+}
 
-	try {
-		await commands.executeCommand('workbench.panel.extension.gitlens');
-	} catch {}
+async function showWelcomeOrWhatsNew(context: ExtensionContext, version: string, previousVersion: string | undefined) {
+	if (previousVersion == null) {
+		Logger.log(`GitLens first-time install; window.focused=${window.state.focused}`);
+		if (Container.config.showWelcomeOnInstall === false) return;
+
+		if (window.state.focused) {
+			await context.globalState.update(GlobalState.PendingWelcomeOnFocus, undefined);
+			await commands.executeCommand(Commands.ShowWelcomePage);
+		} else {
+			// Save pending on window getting focus
+			await context.globalState.update(GlobalState.PendingWelcomeOnFocus, true);
+			const disposable = window.onDidChangeWindowState(e => {
+				if (!e.focused) return;
+
+				disposable.dispose();
+
+				// If the window is now focused and we are pending the welcome, clear the pending state and show the welcome
+				if (context.globalState.get(GlobalState.PendingWelcomeOnFocus) === true) {
+					void context.globalState.update(GlobalState.PendingWelcomeOnFocus, undefined);
+					if (Container.config.showWelcomeOnInstall) {
+						void commands.executeCommand(Commands.ShowWelcomePage);
+					}
+				}
+			});
+			context.subscriptions.push(disposable);
+		}
+
+		return;
+	}
+
+	if (previousVersion !== version) {
+		Logger.log(`GitLens upgraded from v${previousVersion} to v${version}; window.focused=${window.state.focused}`);
+	}
+
+	const [major, minor] = version.split('.').map(v => parseInt(v, 10));
+	const [prevMajor, prevMinor] = previousVersion.split('.').map(v => parseInt(v, 10));
+	if (
+		(major === prevMajor && minor === prevMinor) ||
+		// Don't notify on downgrades
+		major < prevMajor ||
+		(major === prevMajor && minor < prevMinor)
+	) {
+		return;
+	}
+
+	if (major !== prevMajor && Container.config.showWhatsNewAfterUpgrades) {
+		if (window.state.focused) {
+			await context.globalState.update(GlobalState.PendingWhatsNewOnFocus, undefined);
+			await Messages.showWhatsNewMessage(version);
+		} else {
+			// Save pending on window getting focus
+			await context.globalState.update(GlobalState.PendingWhatsNewOnFocus, true);
+			const disposable = window.onDidChangeWindowState(e => {
+				if (!e.focused) return;
+
+				disposable.dispose();
+
+				// If the window is now focused and we are pending the what's new, clear the pending state and show the what's new
+				if (context.globalState.get(GlobalState.PendingWhatsNewOnFocus) === true) {
+					void context.globalState.update(GlobalState.PendingWhatsNewOnFocus, undefined);
+					if (Container.config.showWhatsNewAfterUpgrades) {
+						void Messages.showWhatsNewMessage(version);
+					}
+				}
+			});
+			context.subscriptions.push(disposable);
+		}
+	}
 }

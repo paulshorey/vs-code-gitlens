@@ -1,10 +1,12 @@
 'use strict';
-import { commands, ConfigurationChangeEvent, Disposable, TreeItem, TreeItemCollapsibleState } from 'vscode';
+import { commands, ConfigurationChangeEvent, Disposable, TreeItem, TreeItemCollapsibleState, window } from 'vscode';
+import { getRepoPathOrPrompt } from '../commands';
 import { configuration, SearchAndCompareViewConfig, ViewFilesLayout } from '../configuration';
 import { ContextKeys, NamedRef, PinnedItem, PinnedItems, setContext, WorkspaceState } from '../constants';
 import { Container } from '../container';
 import { GitLog, GitRevision, SearchPattern } from '../git/git';
-import { ReferencePicker, ReferencesQuickPickIncludes, RepositoryPicker } from '../quickpicks';
+import { Logger } from '../logger';
+import { ReferencePicker, ReferencesQuickPickIncludes } from '../quickpicks';
 import { debug, gate, Iterables, log, Promises } from '../system';
 import {
 	CompareResultsNode,
@@ -67,6 +69,13 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		return item;
 	}
 
+	getExistingComparison(repoPath: string, ref1: string, ref2: string): CompareResultsNode | undefined {
+		const id = CompareResultsNode.getPinnableId(repoPath, ref1, ref2);
+		return this.children.find(
+			(c): c is CompareResultsNode => c instanceof CompareResultsNode && c.comparisonId === id,
+		);
+	}
+
 	addOrReplace(results: CompareResultsNode | SearchResultsNode, replace: boolean) {
 		if (this.children.includes(results)) return;
 
@@ -84,15 +93,10 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 		if (this.children.length === 0) return;
 
 		this.removeComparePicker(true);
-
-		for (const child of this._children!) {
-			if (child instanceof ComparePickerNode) continue;
-			if (child.pinned) {
-				void child.unpin();
-			}
+		const index = this._children!.findIndex(c => !c.pinned);
+		if (index !== -1) {
+			this._children!.splice(index, this._children!.length);
 		}
-
-		this._children!.length = 0;
 
 		if (!silent) {
 			this.view.triggerNodeChange();
@@ -116,12 +120,6 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 
 		this.children.splice(index, 1);
 
-		if (node instanceof CompareResultsNode || node instanceof SearchResultsNode) {
-			if (node.pinned) {
-				void node.unpin();
-			}
-		}
-
 		this.view.triggerNodeChange();
 	}
 
@@ -140,99 +138,126 @@ export class SearchAndCompareViewNode extends ViewNode<SearchAndCompareView> {
 	}
 
 	async compareWithSelected(repoPath?: string, ref?: string | NamedRef) {
-		const selectedRef = this.comparePicker?.selectedRef;
-		if (selectedRef == null) return;
+		try {
+			const selectedRef = this.comparePicker?.selectedRef;
+			if (selectedRef == null) return;
 
-		const effectiveRepoPath = repoPath ?? selectedRef.repoPath;
+			if (repoPath == null) {
+				repoPath = selectedRef.repoPath;
+			} else if (repoPath !== selectedRef.repoPath) {
+				// If we don't have a matching repoPath, then start over
+				void this.selectForCompare(repoPath, ref);
 
-		if (ref == null) {
-			const pick = await ReferencePicker.show(
-				effectiveRepoPath,
-				`Compare ${this.getRefName(selectedRef.ref)} with`,
-				'Choose a reference to compare with',
-				{
-					allowEnteringRefs: true,
-					picked: typeof selectedRef.ref === 'string' ? selectedRef.ref : selectedRef.ref.ref,
+				return;
+			}
+
+			if (ref == null) {
+				const pick = await ReferencePicker.show(
+					repoPath,
+					`Compare ${this.getRefName(selectedRef.ref)} with`,
+					'Choose a reference to compare with',
+					{
+						allowEnteringRefs: true,
+						picked: typeof selectedRef.ref === 'string' ? selectedRef.ref : selectedRef.ref.ref,
+						// checkmarks: true,
+						include:
+							ReferencesQuickPickIncludes.BranchesAndTags |
+							ReferencesQuickPickIncludes.HEAD |
+							ReferencesQuickPickIncludes.WorkingTree,
+						sort: { branches: { current: true } },
+					},
+				);
+				if (pick == null) {
+					if (this.comparePicker != null) {
+						await this.view.show();
+						await this.view.reveal(this.comparePicker, { focus: true, select: true });
+					}
+
+					return;
+				}
+
+				ref = pick.ref;
+			}
+
+			this.removeComparePicker();
+			void (await this.view.compare(repoPath, selectedRef.ref, ref));
+		} catch (ex) {
+			Logger.error(ex, 'SearchAndCompareView.compareWithSelected');
+			this.removeComparePicker(true);
+			void window.showErrorMessage(
+				'Unable to complete the comparison. See the GitLens output channel for details.',
+			);
+		}
+	}
+
+	async selectForCompare(repoPath?: string, ref?: string | NamedRef, options?: { prompt?: boolean }) {
+		try {
+			if (repoPath == null) {
+				repoPath = await Container.git.getRepoPath(undefined);
+				if (repoPath == null) {
+					// getHighlanderRepoPath() returns nothing when the repository tree briefly holds
+					// more than one entry; fall back to the single open repository before prompting so
+					// repeated comparisons don't silently fail to open the picker.
+					const repos = await Container.git.getOrderedRepositories();
+					repoPath = repos.length === 1 ? repos[0].path : await getRepoPathOrPrompt('Compare');
+				}
+			}
+			if (repoPath == null) return;
+
+			this.removeComparePicker(true);
+
+			let prompt = options?.prompt ?? false;
+			let ref2;
+			if (ref == null) {
+				const pick = await ReferencePicker.show(repoPath, 'Compare', 'Choose a reference to compare', {
+					allowEnteringRefs: { ranges: true },
+					// checkmarks: false,
 					include:
 						ReferencesQuickPickIncludes.BranchesAndTags |
 						ReferencesQuickPickIncludes.HEAD |
 						ReferencesQuickPickIncludes.WorkingTree,
-					sort: { branches: { current: true } },
-				},
-			);
-			if (pick == null) {
-				if (this.comparePicker != null) {
-					await this.view.show();
-					await this.view.reveal(this.comparePicker, { focus: true, select: true });
+					sort: { branches: { current: true }, tags: {} },
+				});
+				if (pick == null) {
+					await this.triggerChange();
+
+					return;
 				}
-				return;
+
+				ref = pick.ref;
+
+				if (GitRevision.isRange(ref)) {
+					const range = GitRevision.splitRange(ref);
+					if (range != null) {
+						ref = range.ref1 || 'HEAD';
+						ref2 = range.ref2 || 'HEAD';
+					}
+				}
+
+				prompt = true;
 			}
 
-			ref = pick.ref;
-		}
-
-		this.removeComparePicker();
-		void (await this.view.compare(effectiveRepoPath, selectedRef.ref, ref));
-	}
-
-	async selectForCompare(repoPath?: string, ref?: string | NamedRef) {
-		// Step 1: Pick a repository (always show picker when no repoPath provided)
-		if (repoPath == null) {
-			const pick = await RepositoryPicker.show('Compare');
-			if (pick == null) {
-				await this.triggerChange();
-				return;
-			}
-			repoPath = pick.repoPath;
-		}
-
-		this.removeComparePicker(true);
-
-		// Step 2: Pick the first reference
-		let ref2: string | undefined;
-		if (ref == null) {
-			const refPick = await ReferencePicker.show(repoPath, 'Compare', 'Choose a reference to compare', {
-				allowEnteringRefs: { ranges: true },
-				include:
-					ReferencesQuickPickIncludes.BranchesAndTags |
-					ReferencesQuickPickIncludes.HEAD |
-					ReferencesQuickPickIncludes.WorkingTree,
-				sort: { branches: { current: true }, tags: {} },
+			this.comparePicker = new ComparePickerNode(this.view, this, {
+				label: this.getRefName(ref),
+				repoPath: repoPath,
+				ref: ref,
 			});
-			if (refPick == null) {
-				await this.triggerChange();
-				return;
+			this.children.splice(0, 0, this.comparePicker);
+			void setContext(ContextKeys.ViewsCanCompare, true);
+
+			await this.triggerChange();
+
+			await this.view.reveal(this.comparePicker, { focus: false, select: true });
+
+			if (prompt) {
+				await this.compareWithSelected(repoPath, ref2);
 			}
-
-			ref = refPick.ref;
-
-			if (GitRevision.isRange(ref)) {
-				const range = GitRevision.splitRange(ref);
-				if (range != null) {
-					ref = range.ref1 || 'HEAD';
-					ref2 = range.ref2 || 'HEAD';
-				}
-			}
-		}
-
-		// Show the picker node in the tree as visual feedback
-		this.comparePicker = new ComparePickerNode(this.view, this, {
-			label: this.getRefName(ref),
-			repoPath,
-			ref,
-		});
-		this.children.splice(0, 0, this.comparePicker);
-		void setContext(ContextKeys.ViewsCanCompare, true);
-
-		await this.triggerChange();
-		await this.view.reveal(this.comparePicker, { focus: false, select: true });
-
-		// Step 3: Pick the second reference (or use range if already provided)
-		if (ref2 != null) {
-			this.removeComparePicker();
-			void (await this.view.compare(repoPath, ref, ref2));
-		} else {
-			await this.compareWithSelected();
+		} catch (ex) {
+			Logger.error(ex, 'SearchAndCompareView.selectForCompare');
+			this.removeComparePicker(true);
+			void window.showErrorMessage(
+				'Unable to start a comparison. See the GitLens output channel for details.',
+			);
 		}
 	}
 
@@ -320,12 +345,8 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 			commands.registerCommand(this.getQualifiedCommand('pin'), this.pin, this),
 			commands.registerCommand(this.getQualifiedCommand('unpin'), this.unpin, this),
 			commands.registerCommand(this.getQualifiedCommand('swapComparison'), this.swapComparison, this),
-			commands.registerCommand(this.getQualifiedCommand('selectForCompare'), () => this.selectForCompare(), this),
-			commands.registerCommand(
-				this.getQualifiedCommand('compareWithSelected'),
-				() => this.compareWithSelected(),
-				this,
-			),
+			commands.registerCommand(this.getQualifiedCommand('selectForCompare'), this.selectForCompare, this),
+			commands.registerCommand(this.getQualifiedCommand('compareWithSelected'), this.compareWithSelected, this),
 
 			commands.registerCommand(
 				this.getQualifiedCommand('setFilesFilterOnLeft'),
@@ -384,24 +405,28 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 		this.root.dismiss(node);
 	}
 
-	compare(repoPath: string, ref1: string | NamedRef, ref2: string | NamedRef) {
-		return this.addResults(
-			new CompareResultsNode(
-				this,
-				this.ensureRoot(),
-				repoPath,
-				typeof ref1 === 'string' ? { ref: ref1 } : ref1,
-				typeof ref2 === 'string' ? { ref: ref2 } : ref2,
-			),
-		);
+	async compare(repoPath: string, ref1: string | NamedRef, ref2: string | NamedRef): Promise<void> {
+		const ref1Ref = typeof ref1 === 'string' ? { ref: ref1 } : ref1;
+		const ref2Ref = typeof ref2 === 'string' ? { ref: ref2 } : ref2;
+
+		const root = this.ensureRoot();
+
+		// If an identical comparison already exists, reveal it instead of adding a duplicate
+		const existing = root.getExistingComparison(repoPath, ref1Ref.ref, ref2Ref.ref);
+		if (existing != null) {
+			setImmediate(() => this.reveal(existing, { expand: true, focus: true, select: true }));
+			return;
+		}
+
+		await this.addResults(new CompareResultsNode(this, root, repoPath, ref1Ref, ref2Ref));
 	}
 
 	compareWithSelected(repoPath?: string, ref?: string | NamedRef) {
 		void this.ensureRoot().compareWithSelected(repoPath, ref);
 	}
 
-	selectForCompare(repoPath?: string, ref?: string | NamedRef) {
-		void this.ensureRoot().selectForCompare(repoPath, ref);
+	selectForCompare(repoPath?: string, ref?: string | NamedRef, options?: { prompt?: boolean }) {
+		void this.ensureRoot().selectForCompare(repoPath, ref, options);
 	}
 
 	async search(
@@ -432,7 +457,7 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 
 		const labels = { label: `Results ${typeof label === 'string' ? label : label.label}`, queryLabel: label };
 		if (updateNode != null) {
-			await updateNode.edit({ pattern: search, labels, log: results });
+			await updateNode.edit({ pattern: search, labels: labels, log: results });
 
 			return;
 		}
@@ -515,10 +540,6 @@ export class SearchAndCompareView extends ViewBase<SearchAndCompareViewNode, Sea
 
 		const root = this.ensureRoot();
 		root.addOrReplace(results, !this.keepResults);
-
-		if (!results.pinned) {
-			await results.pin();
-		}
 
 		setImmediate(() => this.reveal(results, options));
 	}

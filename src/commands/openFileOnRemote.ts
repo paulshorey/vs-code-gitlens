@@ -9,7 +9,6 @@ import { GitUri } from '../git/gitUri';
 import { Logger } from '../logger';
 import { ReferencePicker } from '../quickpicks';
 import { Strings } from '../system';
-import { StatusFileNode } from '../views/nodes';
 import {
 	ActiveEditorCommand,
 	command,
@@ -58,8 +57,7 @@ export class OpenFileOnRemoteCommand extends ActiveEditorCommand {
 				context.command === Commands.CopyRemoteFileUrlWithoutRange ||
 				context.command === Commands.CopyRemoteFileUrlFrom
 			) {
-				// If it is a StatusFileNode then don't include the sha, since it hasn't been pushed yet
-				args.sha = context.node instanceof StatusFileNode ? undefined : context.node.commit.sha;
+				args.sha = context.node.commit.sha;
 			} else if (isCommandContextViewNodeHasBranch(context)) {
 				args.branchOrTag = context.node.branch?.name;
 			}

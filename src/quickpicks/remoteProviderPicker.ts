@@ -184,7 +184,6 @@ export namespace RemoteProviderPicker {
 		const quickpick = window.createQuickPick<
 			ConfigureCustomRemoteProviderCommandQuickPickItem | CopyOrOpenRemoteCommandQuickPickItem
 		>();
-		(quickpick as any).enableProposedApi = true;
 		quickpick.ignoreFocusOut = getQuickPickIgnoreFocusOut();
 
 		const disposables: Disposable[] = [];

@@ -102,17 +102,17 @@ export namespace QuickCommandButtons {
 
 	export const RevealInSideBar: QuickInputButton = {
 		iconPath: new ThemeIcon('eye'),
-		tooltip: 'Reveal in Panel',
+		tooltip: 'Reveal in Side Bar',
 	};
 
 	export const SearchInSideBar: QuickInputButton = {
 		iconPath: new ThemeIcon('search'),
-		tooltip: 'Search in Panel',
+		tooltip: 'Search in Side Bar',
 	};
 
 	export const ShowResultsInSideBar: QuickInputButton = {
 		iconPath: new ThemeIcon('link-external'),
-		tooltip: 'Show Results in Panel',
+		tooltip: 'Show Results in Side Bar',
 	};
 
 	export const ShowTagsToggle = class extends SelectableQuickInputButton {
