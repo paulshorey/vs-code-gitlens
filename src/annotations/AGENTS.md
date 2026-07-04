@@ -1,13 +1,7 @@
 # annotations
 
-Editor gutter annotations (blame, heatmap, changes).
+- **autolinks.ts** – Issue/PR autolink references. Consumed by `git/remotes/*` providers and
+  `git/formatters/commitFormatter.ts` to linkify issue/PR references in commit messages.
 
-- **annotations.ts** – Annotation types, heatmap chroma
-- **annotationProvider.ts** – Base provider
-- **fileAnnotationController.ts** – Toggle annotations, SVG gutters
-- **lineAnnotationController.ts** – Current line blame
-- **blameAnnotationProvider.ts** – Blame annotations
-- **gutterBlameAnnotationProvider.ts** – Gutter blame
-- **gutterHeatmapBlameAnnotationProvider.ts** – Heatmap (age-based color)
-- **gutterChangesAnnotationProvider.ts** – Local/unpublished changes
-- **autolinks.ts** – Issue/PR auto-linking in messages
+The editor gutter/line annotation controllers (blame, heatmap, changes) were removed in the
+Search & Compare-only refactor; only the autolink reference helper remains here.

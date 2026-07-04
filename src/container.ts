@@ -1,27 +1,14 @@
 'use strict';
-import { commands, ConfigurationChangeEvent, ConfigurationScope, ExtensionContext } from 'vscode';
+import { ConfigurationChangeEvent, ConfigurationScope, ExtensionContext } from 'vscode';
 import { Autolinks } from './annotations/autolinks';
-import { FileAnnotationController } from './annotations/fileAnnotationController';
-import { LineAnnotationController } from './annotations/lineAnnotationController';
 import { ActionRunners } from './api/actionRunners';
 import { resetAvatarCache } from './avatars';
-import { GitCodeLensController } from './codelens/codeLensController';
-import { Commands, ToggleFileAnnotationCommandArgs } from './commands';
-import {
-	AnnotationsToggleMode,
-	Config,
-	configuration,
-	ConfigurationWillChangeEvent,
-	FileAnnotationType,
-} from './configuration';
+import { Config, configuration, ConfigurationWillChangeEvent } from './configuration';
 import { GitFileSystemProvider } from './git/fsProvider';
 import { GitService } from './git/gitService';
-import { LineHoverController } from './hovers/lineHoverController';
 import { Keyboard } from './keyboard';
 import { Logger } from './logger';
-import { StatusBarController } from './statusbar/statusBarController';
 import { memoize } from './system/decorators/memoize';
-import { GitTerminalLinkProvider } from './terminal/linkProvider';
 import { GitDocumentTracker } from './trackers/gitDocumentTracker';
 import { GitLineTracker } from './trackers/gitLineTracker';
 import { SearchAndCompareView } from './views/searchAndCompareView';
@@ -37,8 +24,6 @@ export class Container {
 	private static _applyModeConfigurationTransformBound:
 		| ((e: ConfigurationChangeEvent) => ConfigurationChangeEvent)
 		| undefined;
-
-	private static _terminalLinks: GitTerminalLinkProvider | undefined;
 
 	static initialize(context: ExtensionContext, config: Config) {
 		this._context = context;
@@ -56,11 +41,6 @@ export class Container {
 		// Since there is a bit of a chicken & egg problem with the DocumentTracker and the GitService, initialize the tracker once the GitService is loaded
 		this._tracker.initialize();
 
-		context.subscriptions.push((this._fileAnnotationController = new FileAnnotationController()));
-		context.subscriptions.push((this._lineAnnotationController = new LineAnnotationController()));
-		context.subscriptions.push((this._lineHoverController = new LineHoverController()));
-		context.subscriptions.push((this._statusBarController = new StatusBarController()));
-		context.subscriptions.push((this._codeLensController = new GitCodeLensController()));
 		context.subscriptions.push((this._keyboard = new Keyboard()));
 		context.subscriptions.push((this._settingsWebview = new SettingsWebview()));
 		context.subscriptions.push((this._welcomeWebview = new WelcomeWebview()));
@@ -73,21 +53,6 @@ export class Container {
 		context.subscriptions.push((this._searchAndCompareView = new SearchAndCompareView()));
 
 		context.subscriptions.push((this._rebaseEditor = new RebaseEditorProvider()));
-
-		if (config.terminalLinks.enabled) {
-			context.subscriptions.push((this._terminalLinks = new GitTerminalLinkProvider()));
-		}
-
-		context.subscriptions.push(
-			configuration.onDidChange(e => {
-				if (!configuration.changed(e, 'terminalLinks.enabled')) return;
-
-				this._terminalLinks?.dispose();
-				if (Container.config.terminalLinks.enabled) {
-					context.subscriptions.push((this._terminalLinks = new GitTerminalLinkProvider()));
-				}
-			}),
-		);
 
 		context.subscriptions.push(new GitFileSystemProvider());
 
@@ -131,11 +96,6 @@ export class Container {
 		return this._autolinks;
 	}
 
-	private static _codeLensController: GitCodeLensController;
-	static get codeLens() {
-		return this._codeLensController;
-	}
-
 	private static _config: Config | undefined;
 	static get config() {
 		if (this._config == null) {
@@ -147,11 +107,6 @@ export class Container {
 	private static _context: ExtensionContext;
 	static get context() {
 		return this._context;
-	}
-
-	private static _fileAnnotationController: FileAnnotationController;
-	static get fileAnnotations() {
-		return this._fileAnnotationController;
 	}
 
 	private static _git: GitService;
@@ -187,16 +142,6 @@ export class Container {
 		return this._keyboard;
 	}
 
-	private static _lineAnnotationController: LineAnnotationController;
-	static get lineAnnotations() {
-		return this._lineAnnotationController;
-	}
-
-	private static _lineHoverController: LineHoverController;
-	static get lineHovers() {
-		return this._lineHoverController;
-	}
-
 	private static _lineTracker: GitLineTracker;
 	static get lineTracker() {
 		return this._lineTracker;
@@ -225,11 +170,6 @@ export class Container {
 		return this._settingsWebview;
 	}
 
-	private static _statusBarController: StatusBarController;
-	static get statusBar() {
-		return this._statusBarController;
-	}
-
 	private static _tracker: GitDocumentTracker;
 	static get tracker() {
 		return this._tracker;
@@ -254,54 +194,10 @@ export class Container {
 	}
 
 	private static applyMode(config: Config) {
-		if (!config.mode.active) return config;
-
-		const mode = config.modes?.[config.mode.active];
-		if (mode == null) return config;
-
-		if (mode.annotations != null) {
-			let command: string | undefined;
-			switch (mode.annotations) {
-				case 'blame':
-					config.blame.toggleMode = AnnotationsToggleMode.Window;
-					command = Commands.ToggleFileBlame;
-					break;
-				case 'changes':
-					config.changes.toggleMode = AnnotationsToggleMode.Window;
-					command = Commands.ToggleFileChanges;
-					break;
-				case 'heatmap':
-					config.heatmap.toggleMode = AnnotationsToggleMode.Window;
-					command = Commands.ToggleFileHeatmap;
-					break;
-			}
-
-			if (command != null) {
-				const commandArgs: ToggleFileAnnotationCommandArgs = {
-					type: mode.annotations as FileAnnotationType,
-					on: true,
-				};
-				// Make sure to delay the execution by a bit so that the configuration changes get propegated first
-				setTimeout(() => commands.executeCommand(command!, commandArgs), 50);
-			}
-		}
-
-		if (mode.codeLens != null) {
-			config.codeLens.enabled = mode.codeLens;
-		}
-
-		if (mode.currentLine != null) {
-			config.currentLine.enabled = mode.currentLine;
-		}
-
-		if (mode.hovers != null) {
-			config.hovers.enabled = mode.hovers;
-		}
-
-		if (mode.statusBar != null) {
-			config.statusBar.enabled = mode.statusBar;
-		}
-
+		// The editor-decoration subsystems that `modes` used to toggle (blame/changes/heatmap
+		// annotations, code lens, current-line, hovers, status bar) have been removed from this
+		// fork, so applying a mode no longer has any effect. Kept as a pass-through so the
+		// `mode`/`modes` settings remain harmless.
 		return config;
 	}
 

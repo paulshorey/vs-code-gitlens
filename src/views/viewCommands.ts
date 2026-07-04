@@ -11,7 +11,7 @@ import {
 	GitActions,
 	OpenFileAtRevisionCommandArgs,
 } from '../commands';
-import { configuration, FileAnnotationType } from '../configuration';
+import { configuration } from '../configuration';
 import { BuiltInGitCommands, ContextKeys, setContext } from '../constants';
 import { Container } from '../container';
 import { GitReference } from '../git/git';
@@ -129,8 +129,6 @@ export class ViewCommands {
 		commands.registerCommand('gitlens.views.openChangedFileDiffsWithWorking', this.openAllChangesWithWorking, this);
 		commands.registerCommand('gitlens.views.openChangedFileRevisions', this.openRevisions, this);
 		commands.registerCommand('gitlens.views.applyChanges', this.applyChanges, this);
-		commands.registerCommand('gitlens.views.highlightChanges', this.highlightChanges, this);
-		commands.registerCommand('gitlens.views.highlightRevisionChanges', this.highlightRevisionChanges, this);
 		commands.registerCommand('gitlens.views.restore', this.restore, this);
 
 		commands.registerCommand('gitlens.views.switchToCommit', this.switch, this);
@@ -185,32 +183,6 @@ export class ViewCommands {
 		if (!(node instanceof CommitNode)) return Promise.resolve();
 
 		return GitActions.cherryPick(node.repoPath, node.ref);
-	}
-
-	@debug()
-	private async highlightChanges(node: CommitFileNode | ResultsFileNode) {
-		if (!(node instanceof CommitFileNode) && !(node instanceof ResultsFileNode)) return;
-
-		void (await this.openFile(node, { preserveFocus: true, preview: true }));
-		void (await Container.fileAnnotations.toggle(
-			window.activeTextEditor,
-			FileAnnotationType.Changes,
-			{ sha: node.ref.ref },
-			true,
-		));
-	}
-
-	@debug()
-	private async highlightRevisionChanges(node: CommitFileNode | ResultsFileNode) {
-		if (!(node instanceof CommitFileNode) && !(node instanceof ResultsFileNode)) return;
-
-		void (await this.openFile(node, { preserveFocus: true, preview: true }));
-		void (await Container.fileAnnotations.toggle(
-			window.activeTextEditor,
-			FileAnnotationType.Changes,
-			{ sha: node.ref.ref, only: true },
-			true,
-		));
 	}
 
 	@debug()

@@ -544,10 +544,7 @@ export namespace GitActions {
 				opts.selection = new Range(line, 0, line, 0);
 			}
 
-			const editor = await findOrOpenEditor(uri, opts);
-			if (annotationType != null && editor != null) {
-				void (await Container.fileAnnotations.show(editor, annotationType, { selection: { line: line } }));
-			}
+			await findOrOpenEditor(uri, opts);
 		}
 
 		export async function openFiles(commit: GitLogCommit): Promise<void>;

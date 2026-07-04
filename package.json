@@ -75,18 +75,6 @@
 		"onCommand:gitlens.diffLineWithWorking",
 		"onCommand:gitlens.disableRebaseEditor",
 		"onCommand:gitlens.enableRebaseEditor",
-		"onCommand:gitlens.toggleFileBlame",
-		"onCommand:gitlens.toggleFileBlameInDiffLeft",
-		"onCommand:gitlens.toggleFileBlameInDiffRight",
-		"onCommand:gitlens.clearFileAnnotations",
-		"onCommand:gitlens.computingFileAnnotations",
-		"onCommand:gitlens.toggleFileHeatmap",
-		"onCommand:gitlens.toggleFileHeatmapInDiffLeft",
-		"onCommand:gitlens.toggleFileHeatmapInDiffRight",
-		"onCommand:gitlens.toggleFileChanges",
-		"onCommand:gitlens.toggleFileChangesOnly",
-		"onCommand:gitlens.toggleLineBlame",
-		"onCommand:gitlens.toggleCodeLens",
 		"onCommand:gitlens.gitCommands",
 		"onCommand:gitlens.switchMode",
 		"onCommand:gitlens.toggleReviewMode",
@@ -3634,106 +3622,6 @@
 				"category": "GitLens"
 			},
 			{
-				"command": "gitlens.toggleFileBlame",
-				"title": "%Toggle File Blame%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileBlameInDiffLeft",
-				"title": "%Toggle File Blame%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileBlameInDiffRight",
-				"title": "%Toggle File Blame%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.clearFileAnnotations",
-				"title": "%Clear File Annotations%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git-orange.svg",
-					"light": "images/light/icon-git-orange.svg"
-				}
-			},
-			{
-				"command": "gitlens.computingFileAnnotations",
-				"title": "%Computing File Annotations...%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git-progress.svg",
-					"light": "images/light/icon-git-progress.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileHeatmap",
-				"title": "%Toggle File Heatmap%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileHeatmapInDiffLeft",
-				"title": "%Toggle File Heatmap%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileHeatmapInDiffRight",
-				"title": "%Toggle File Heatmap%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileChanges",
-				"title": "%Toggle File Changes%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleFileChangesOnly",
-				"title": "%Toggle File Changes%",
-				"category": "GitLens",
-				"icon": {
-					"dark": "images/dark/icon-git.svg",
-					"light": "images/light/icon-git.svg"
-				}
-			},
-			{
-				"command": "gitlens.toggleLineBlame",
-				"title": "%Toggle Line Blame%",
-				"category": "GitLens"
-			},
-			{
-				"command": "gitlens.toggleCodeLens",
-				"title": "%Toggle Git Code Lens%",
-				"category": "GitLens"
-			},
-			{
 				"command": "gitlens.gitCommands",
 				"title": "%Git Command Palette%",
 				"category": "GitLens"
@@ -5406,54 +5294,6 @@
 					"when": "gitlens:enabled"
 				},
 				{
-					"command": "gitlens.toggleFileBlame",
-					"when": "gitlens:activeFileStatus =~ /blameable/"
-				},
-				{
-					"command": "gitlens.toggleFileBlameInDiffLeft",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.toggleFileBlameInDiffRight",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.clearFileAnnotations",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && gitlens:annotationStatus == computed"
-				},
-				{
-					"command": "gitlens.computingFileAnnotations",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmap",
-					"when": "gitlens:activeFileStatus =~ /blameable/"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmapInDiffLeft",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmapInDiffRight",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.toggleFileChanges",
-					"when": "gitlens:activeFileStatus =~ /blameable/"
-				},
-				{
-					"command": "gitlens.toggleFileChangesOnly",
-					"when": "false"
-				},
-				{
-					"command": "gitlens.toggleLineBlame",
-					"when": "!gitlens:disabled"
-				},
-				{
-					"command": "gitlens.toggleCodeLens",
-					"when": "!gitlens:disabled && !gitlens:disabledToggleCodeLens"
-				},
-				{
 					"command": "gitlens.gitCommands",
 					"when": "!gitlens:disabled && !gitlens:readonly"
 				},
@@ -6644,36 +6484,8 @@
 					"group": "navigation@99"
 				},
 				{
-					"command": "gitlens.toggleFileBlame",
-					"when": "config.gitlens.fileAnnotations.command == blame && gitlens:activeFileStatus =~ /blameable/ && !gitlens:annotationStatus && config.gitlens.menus.editorGroup.blame",
-					"group": "navigation@100",
-					"alt": "gitlens.toggleFileHeatmap"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmap",
-					"when": "config.gitlens.fileAnnotations.command == heatmap && gitlens:activeFileStatus =~ /blameable/ && !gitlens:annotationStatus && config.gitlens.menus.editorGroup.blame",
-					"group": "navigation@100",
-					"alt": "gitlens.toggleFileBlame"
-				},
-				{
-					"command": "gitlens.toggleFileChanges",
-					"when": "config.gitlens.fileAnnotations.command == changes && gitlens:activeFileStatus =~ /blameable/ && !gitlens:annotationStatus && config.gitlens.menus.editorGroup.blame",
-					"group": "navigation@100",
-					"alt": "gitlens.toggleFileBlame"
-				},
-				{
 					"submenu": "gitlens/editor/annotations",
 					"when": "!config.gitlens.fileAnnotations.command && gitlens:activeFileStatus =~ /blameable/ && !gitlens:annotationStatus && config.gitlens.menus.editorGroup.blame",
-					"group": "navigation@100"
-				},
-				{
-					"command": "gitlens.computingFileAnnotations",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && gitlens:annotationStatus == computing && config.gitlens.menus.editorGroup.blame",
-					"group": "navigation@100"
-				},
-				{
-					"command": "gitlens.clearFileAnnotations",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && gitlens:annotationStatus == computed && config.gitlens.menus.editorGroup.blame",
 					"group": "navigation@100"
 				}
 			],
@@ -8227,48 +8039,7 @@
 					"group": "2_gitlens@2"
 				}
 			],
-			"gitlens/editor/annotations": [
-				{
-					"command": "gitlens.clearFileAnnotations",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && gitlens:annotationStatus",
-					"group": "1_gitlens@1"
-				},
-				{
-					"command": "gitlens.toggleFileBlame",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && !isInDiffEditor",
-					"group": "2_gitlens@1"
-				},
-				{
-					"command": "gitlens.toggleFileBlameInDiffLeft",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && isInDiffEditor && !isInDiffRightEditor",
-					"group": "2_gitlens@1"
-				},
-				{
-					"command": "gitlens.toggleFileBlameInDiffRight",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && isInDiffRightEditor",
-					"group": "2_gitlens@1"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmap",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && !isInDiffEditor",
-					"group": "2_gitlens@2"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmapInDiffLeft",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && isInDiffEditor && !isInDiffRightEditor",
-					"group": "2_gitlens@2"
-				},
-				{
-					"command": "gitlens.toggleFileHeatmapInDiffRight",
-					"when": "gitlens:activeFileStatus =~ /blameable/ && isInDiffRightEditor",
-					"group": "2_gitlens@2"
-				},
-				{
-					"command": "gitlens.toggleFileChanges",
-					"when": "gitlens:activeFileStatus =~ /blameable/",
-					"group": "2_gitlens@3"
-				}
-			],
+			"gitlens/editor/annotations": [],
 			"gitlens/editor/context/changes": [
 				{
 					"command": "gitlens.diffWithPrevious",
@@ -8621,28 +8392,6 @@
 				"when": "config.gitlens.keymap == chorded && !gitlens:disabled"
 			},
 			{
-				"command": "gitlens.toggleFileBlame",
-				"key": "alt+b",
-				"when": "config.gitlens.keymap == alternate && editorTextFocus && gitlens:activeFileStatus =~ /blameable/"
-			},
-			{
-				"command": "gitlens.toggleFileBlame",
-				"key": "ctrl+shift+g b",
-				"mac": "cmd+alt+g b",
-				"when": "config.gitlens.keymap == chorded && editorTextFocus && gitlens:activeFileStatus =~ /blameable/"
-			},
-			{
-				"command": "gitlens.toggleCodeLens",
-				"key": "shift+alt+b",
-				"when": "config.gitlens.keymap == alternate && editorTextFocus && !gitlens:disabled && !gitlens:disabledToggleCodeLens"
-			},
-			{
-				"command": "gitlens.toggleCodeLens",
-				"key": "ctrl+shift+g shift+b",
-				"mac": "cmd+alt+g shift+b",
-				"when": "config.gitlens.keymap == chorded && editorTextFocus && !gitlens:disabled && !gitlens:disabledToggleCodeLens"
-			},
-			{
 				"command": "gitlens.showQuickFileHistory",
 				"key": "alt+h",
 				"when": "config.gitlens.keymap == alternate && !gitlens:disabled"
@@ -8931,7 +8680,6 @@
 		"@typescript-eslint/eslint-plugin": "5.4.0",
 		"@typescript-eslint/parser": "5.4.0",
 		"@types/fs-extra": "^9.0.11",
-		"tslint": "^5.12.1",
 		"ansi-regex": "6.0.1",
 		"circular-dependency-plugin": "5.2.2",
 		"clean-webpack-plugin": "4.0.0",
