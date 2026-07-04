@@ -198,20 +198,22 @@ export class RevealInSideBarQuickPickItem extends CommandQuickPickItem {
 		super(item, undefined, undefined);
 	}
 
-	override async execute(options?: { preserveFocus?: boolean; preview?: boolean }): Promise<void> {
+	override execute(options?: { preserveFocus?: boolean; preview?: boolean }): Promise<void> {
 		if (GitStashCommit.is(this.reference)) {
-			void (await GitActions.Stash.reveal(this.reference, {
+			GitActions.Stash.reveal(this.reference, {
 				select: true,
 				focus: !(options?.preserveFocus ?? false),
 				expand: true,
-			}));
+			});
 		} else {
-			void (await GitActions.Commit.reveal(this.reference, {
+			GitActions.Commit.reveal(this.reference, {
 				select: true,
 				focus: !(options?.preserveFocus ?? false),
 				expand: true,
-			}));
+			});
 		}
+
+		return Promise.resolve();
 	}
 }
 

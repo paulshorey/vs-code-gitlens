@@ -1,6 +1,5 @@
 'use strict';
 import { Range, TextEditor, Uri } from 'vscode';
-import { Container } from '../container';
 import { GitBranch, GitLog, GitReference, GitTag } from '../git/git';
 import { GitUri } from '../git/gitUri';
 import { CommandQuickPickItem } from '../quickpicks';

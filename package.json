@@ -2,7 +2,7 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(PaulShorey Modified) Supercharge the Git capabilities built into IDE — Visualize code authorship at a glance via Git blame annotations and code lens, seamlessly navigate and explore Git repositories, gain valuable insights via powerful comparison commands, and so much more",
-	"version": "0.1.23",
+	"version": "0.1.25",
 	"author": {
 		"name": "Paul Shorey",
 		"email": "hello@paulshorey.com"

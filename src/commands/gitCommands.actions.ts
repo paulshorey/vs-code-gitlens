@@ -11,7 +11,7 @@ import {
 	GitCommandsCommandArgs,
 	OpenWorkingFileCommandArgs,
 } from '../commands';
-import { configuration, FileAnnotationType } from '../configuration';
+import { FileAnnotationType } from '../configuration';
 import { Container } from '../container';
 import {
 	GitBranchReference,
@@ -143,7 +143,6 @@ export namespace GitActions {
 			});
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		export function reveal(
 			_branch: GitBranchReference,
 			_options?: {
@@ -623,7 +622,6 @@ export namespace GitActions {
 			}));
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		export function reveal(
 			_commit: GitRevisionReference,
 			_options?: {
@@ -670,7 +668,6 @@ export namespace GitActions {
 			});
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		export function reveal(
 			_tag: GitTagReference,
 			_options?: {
@@ -762,7 +759,6 @@ export namespace GitActions {
 			void (await Container.git.pruneRemote(typeof repo === 'string' ? repo : repo.path, remote));
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		export function reveal(
 			_remote: GitRemote,
 			_options?: {
@@ -811,7 +807,6 @@ export namespace GitActions {
 			});
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		export function reveal(
 			_stash: GitStashReference,
 			_options?: {

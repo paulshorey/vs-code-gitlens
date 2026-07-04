@@ -137,11 +137,11 @@ export class ShowQuickCommitCommand extends ActiveEditorCachedCommand {
 			}
 
 			if (args.revealInView) {
-				void (await GitActions.Commit.reveal(args.commit, {
+				GitActions.Commit.reveal(args.commit, {
 					select: true,
 					focus: true,
 					expand: true,
-				}));
+				});
 
 				return;
 			}

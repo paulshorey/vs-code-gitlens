@@ -462,10 +462,10 @@ export async function* pickBranchStep<
 			}
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: async quickpick => {
+		onDidPressKey: quickpick => {
 			if (quickpick.activeItems.length === 0) return;
 
-			await GitActions.Branch.reveal(quickpick.activeItems[0].item, {
+			GitActions.Branch.reveal(quickpick.activeItems[0].item, {
 				select: true,
 				focus: false,
 				expand: true,
@@ -521,10 +521,10 @@ export async function* pickBranchesStep<
 			}
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: async quickpick => {
+		onDidPressKey: quickpick => {
 			if (quickpick.activeItems.length === 0) return;
 
-			await GitActions.Branch.reveal(quickpick.activeItems[0].item, {
+			GitActions.Branch.reveal(quickpick.activeItems[0].item, {
 				select: true,
 				focus: false,
 				expand: true,
@@ -867,7 +867,7 @@ export async function* pickCommitStep<
 			);
 
 			if (key === 'ctrl+right') {
-				await GitActions.Commit.reveal(items[0].item, {
+				GitActions.Commit.reveal(items[0].item, {
 					select: true,
 					focus: false,
 					expand: true,
@@ -996,7 +996,7 @@ export function* pickCommitsStep<
 			if (quickpick.activeItems.length === 0) return;
 
 			if (key === 'ctrl+right') {
-				await GitActions.Commit.reveal(quickpick.activeItems[0].item, {
+				GitActions.Commit.reveal(quickpick.activeItems[0].item, {
 					select: true,
 					focus: false,
 					expand: true,
@@ -1195,10 +1195,10 @@ export function* pickStashStep<
 			}
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: async quickpick => {
+		onDidPressKey: quickpick => {
 			if (quickpick.activeItems.length === 0) return;
 
-			await GitActions.Stash.reveal(quickpick.activeItems[0].item, {
+			GitActions.Stash.reveal(quickpick.activeItems[0].item, {
 				select: true,
 				focus: false,
 				expand: true,
@@ -1251,10 +1251,10 @@ export async function* pickTagsStep<
 			}
 		},
 		keys: ['right', 'alt+right', 'ctrl+right'],
-		onDidPressKey: async quickpick => {
+		onDidPressKey: quickpick => {
 			if (quickpick.activeItems.length === 0) return;
 
-			await GitActions.Tag.reveal(quickpick.activeItems[0].item, {
+			GitActions.Tag.reveal(quickpick.activeItems[0].item, {
 				select: true,
 				focus: false,
 				expand: true,
