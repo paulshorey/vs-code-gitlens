@@ -1,45 +1,45 @@
-# GitLens Codebase Overview
+# GitLens (PaulShorey fork)
 
-VS Code extension forked from `eamodio/vscode-gitlens` with PaulShorey-specific chart panels.
+VS Code extension forked from [eamodio/vscode-gitlens](https://github.com/eamodio/vscode-gitlens), scoped to **Search & Compare** — compare git references, list changed files, open diffs in the editor.
 
-## Key Files
+## Key paths
 
-| Path               | Purpose                                                                                 |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| `package.json`     | Extension manifest: commands, settings, menus, view containers, default view visibility |
-| `src/extension.ts` | Activation, git availability checks, command registration, forced view restoration      |
-| `src/container.ts` | Shared services and singleton view instances                                            |
-| `src/views/`       | Tree views, including `Search & Compare`                                                |
-| `src/commands/`    | Command handlers such as show/focus and view layout commands                            |
-| `resources/`       | Static assets for webviews/charts                                                       |
+| Path | Purpose |
+| --- | --- |
+| `package.json` | Manifest: one view, commands, menus, settings (~4k lines after pruning) |
+| `src/extension.ts` | Activation, git checks, command registration |
+| `src/container.ts` | Git service, Search & Compare view, trackers, autolinks |
+| `src/views/searchAndCompareView.ts` | Primary feature — compare/search tree |
+| `src/config.ts` | Typed settings surface (must match `package.json` keys the code reads) |
+| `scripts/prune-package-json.mjs` | Remove dead commands/menus after feature removal |
+| `scripts/cleanup-package-json.mjs` | Modes removal, menu `when` cleanup, section renames |
 
-## Activation Flow
+## Removed (do not restore without re-adding handlers)
 
-`extension.ts` initializes Git, sets context keys, creates the `Container`, then registers commands and views.
+- Editor decorations: blame, code lens, hovers, status bar blame, gutter heatmap/changes
+- Webviews: welcome, settings, rebase editor
+- Live Share (`vsls`), standalone `github/` subsystem (GitHub API lives in `git/remotes/githubApi.ts`)
+- All sidebar views except **Search & Compare**
+- GitLens **modes** (zen/review) — settings toggles had no effect after decoration removal
 
-## View Model
+## Search & Compare flow
 
-- View contributions live in `package.json`
-- Tree view behavior lives in `src/views/`
-- `gitlens.showSearchAndCompareView` routes through `src/commands/showView.ts`
-- Default layout is the GitLens activity bar container and activation resets GitLens views back there
+1. User runs **Compare References** (or welcome link in empty view)
+2. Pick repository (if multi-root), then reference A, then reference B
+3. Tree lists changed files; click opens diff in editor (green/red)
+4. User can pin comparisons, swap sides, filter files, add more repos/refs
 
-## Most important feature
+Default location: GitLens activity bar (`gitlens` container). User may drag the view to the panel.
 
-The most important part of this VS Code extension is the "Search and Compare View" (`gitlens.views.searchAndCompare`). Make sure this view is supported and reliable. Other views will be removed in a future refactor.
+## Build
 
-Search And Compare View:
+```bash
+npm install          # uses Artifactory via .npmrc; run refresh-jfrog if 401
+npm run build        # dev webpack + typecheck
+npm run bundle       # production (vscode:prepublish)
+npx vsce package --no-dependencies
+```
 
-- User clicks "Compare References"
-- if IDE workspaces contains multiple repositories, user is first shown the "Choose a repository" modal selection dropdown
-- then a "Choose a reference to compare..." modal selection dropdown
-- then a final "Choose a reference to compare with..." modal selection dropdown
-- After the repository, compare, and with options are selected, a new "Comparing A with B" UI content appears in the panel. This shows changed files.
-- User clicks on each file to see changes in the main editor tab. Changes are shown (green for additions, red for deletions).
-- User is also able to add other repositories and references to compare.
+## Docs for agents
 
-This view is shown in the primary sidebar, by default. User is able to drag the tab to the Panel instead.
-
-## Docs
-
-Keep nearby `AGENTS.md` files concise and aligned with the current code.
+Keep folder-level `AGENTS.md` files short and aligned with the code. After removing features, run the prune scripts and update docs in the same change.

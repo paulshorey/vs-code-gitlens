@@ -1,26 +1,29 @@
 # src
 
-Extension source. Entry point: `extension.ts`. Shared singleton: `container.ts`.
+Extension source. Entry: `extension.ts`. Shared singleton: `container.ts`.
 
-## Main Areas
+## Layout
 
-| Folder         | Purpose                                               |
-| -------------- | ----------------------------------------------------- |
-| `commands/`    | Command handlers, including view show/layout commands |
-| `git/`         | Git execution, models, parsers, remotes               |
-| `views/`       | Tree views such as `Search & Compare`                 |
-| `webviews/`    | Welcome/settings/rebase webviews                      |
-| `annotations/` | `autolinks.ts` only — issue/PR autolink references used by remotes and commit formatting |
+| Folder | Purpose |
+| --- | --- |
+| `commands/` | Command handlers (compare, diff, git palette, show view) |
+| `git/` | Git execution, models, remotes, formatters |
+| `views/` | **Search & Compare** tree only |
+| `annotations/` | **`autolinks.ts` only** — PR/issue link patterns for remotes + commit formatting |
+| `quickpicks/` | Compare/search/repo/commit pickers (no mode picker) |
+| `trackers/` | Active editor git line/document tracking |
+| `api/` | Extension API surface |
 
-## Important Files
+## Not present (removed)
 
-- `extension.ts` wires activation, git checks, welcome state, and command registration
-- `container.ts` owns view instances like `searchAndCompareView`
-- `configuration.ts` exposes `gitlens.*` settings
-- `constants.ts` defines context keys used by menus and views
+`webviews/`, `codelens/`, `hovers/`, `statusbar/`, `terminal/`, `vsls/`, `github/`, `controllers/`, `services/`, `views/commits-panel/`
 
-## View Notes
+## Settings
 
-- Manifest contributions are in `package.json`
-- Runtime tree behavior is in `views/`
-- `Search & Compare` is the key compare/search pane and is shown via `gitlens.showSearchAndCompareView`
+- Runtime reads: `configuration.ts` + typed `config.ts`
+- Manifest defaults: `package.json` → `contributes.configuration`
+- After pruning settings, verify keys against `grep configuration.get` / `Container.config`
+
+## Primary command
+
+`gitlens.showSearchAndCompareView` → `showView.ts` → `Container.searchAndCompareView.show()`

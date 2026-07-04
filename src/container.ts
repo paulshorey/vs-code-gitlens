@@ -1,5 +1,5 @@
 'use strict';
-import { ConfigurationChangeEvent, ConfigurationScope, ExtensionContext } from 'vscode';
+import { ExtensionContext } from 'vscode';
 import { Autolinks } from './annotations/autolinks';
 import { ActionRunners } from './api/actionRunners';
 import { resetAvatarCache } from './avatars';
@@ -16,14 +16,9 @@ import { ViewCommands } from './views/viewCommands';
 import { ViewFileDecorationProvider } from './views/viewDecorationProvider';
 
 export class Container {
-	private static _configsAffectedByMode: string[] | undefined;
-	private static _applyModeConfigurationTransformBound:
-		| ((e: ConfigurationChangeEvent) => ConfigurationChangeEvent)
-		| undefined;
-
 	static initialize(context: ExtensionContext, config: Config) {
 		this._context = context;
-		this._config = Container.applyMode(config);
+		this._config = config;
 
 		context.subscriptions.push((this._actionRunners = new ActionRunners()));
 		context.subscriptions.push((this._lineTracker = new GitLineTracker()));
@@ -55,13 +50,6 @@ export class Container {
 		if (configuration.changed(e.change, 'defaultGravatarsStyle')) {
 			resetAvatarCache('fallback');
 		}
-
-		if (configuration.changed(e.change, 'mode') || configuration.changed(e.change, 'modes')) {
-			if (this._applyModeConfigurationTransformBound == null) {
-				this._applyModeConfigurationTransformBound = this.applyModeConfigurationTransform.bind(this);
-			}
-			e.transform = this._applyModeConfigurationTransformBound;
-		}
 	}
 
 	private static _actionRunners: ActionRunners;
@@ -85,7 +73,7 @@ export class Container {
 	private static _config: Config | undefined;
 	static get config() {
 		if (this._config == null) {
-			this._config = Container.applyMode(configuration.get());
+			this._config = configuration.get();
 		}
 		return this._config;
 	}
@@ -135,25 +123,5 @@ export class Container {
 			this._viewCommands = new ViewCommands();
 		}
 		return this._viewCommands;
-	}
-
-	private static applyMode(config: Config) {
-		return config;
-	}
-
-	private static applyModeConfigurationTransform(e: ConfigurationChangeEvent): ConfigurationChangeEvent {
-		if (this._configsAffectedByMode == null) {
-			this._configsAffectedByMode = [
-				`gitlens.${configuration.name('mode')}`,
-				`gitlens.${configuration.name('modes')}`,
-			];
-		}
-
-		const original = e.affectsConfiguration;
-		return {
-			...e,
-			affectsConfiguration: (section: string, scope?: ConfigurationScope) =>
-				this._configsAffectedByMode?.some(n => section.startsWith(n)) ? true : original(section, scope),
-		};
 	}
 }

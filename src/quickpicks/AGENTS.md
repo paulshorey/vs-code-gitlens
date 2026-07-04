@@ -1,12 +1,10 @@
 # quickpicks
 
-Quick pick menu items for commits, repos, refs.
+Modal pickers for git operations and Search & Compare flows.
 
-- **gitQuickPickItems.ts** – Git-specific items (branch, commit, stash)
-- **commitQuickPickItems.ts** – Commit quick pick items, actions
-- **quickPicksItems.ts** – Generic quick pick item base
-- **referencePicker.ts** – Pick branch/tag/commit
-- **commitPicker.ts** – Commit picker
-- **repositoryPicker.ts** – Repository picker
-- **remoteProviderPicker.ts** – Remote provider picker
-- **modePicker.ts** – Mode switching
+- `repositoryPicker.ts`, `referencePicker.ts` — compare reference selection
+- `commitPicker.ts`, `commitQuickPickItems.ts` — commits and file-at-revision flows
+- `remoteProviderPicker.ts` — connect/disconnect remotes
+- `gitQuickPickItems.ts`, `quickPicksItems.ts` — shared item types
+
+Mode picker removed with GitLens modes subsystem.

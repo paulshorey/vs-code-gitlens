@@ -45,8 +45,6 @@ export enum BuiltInGitConfiguration {
 export enum ContextKeys {
 	ActionPrefix = 'gitlens:action:',
 	ActiveFileStatus = 'gitlens:activeFileStatus',
-	AnnotationStatus = 'gitlens:annotationStatus',
-	DisabledToggleCodeLens = 'gitlens:disabledToggleCodeLens',
 	Disabled = 'gitlens:disabled',
 	Enabled = 'gitlens:enabled',
 	HasConnectedRemotes = 'gitlens:hasConnectedRemotes',
@@ -56,15 +54,8 @@ export enum ContextKeys {
 	Readonly = 'gitlens:readonly',
 	ViewsCanCompare = 'gitlens:views:canCompare',
 	ViewsCanCompareFile = 'gitlens:views:canCompare:file',
-	ViewsCommitsMyCommitsOnly = 'gitlens:views:commits:myCommitsOnly',
-	ViewsFileHistoryCanPin = 'gitlens:views:fileHistory:canPin',
-	ViewsFileHistoryCursorFollowing = 'gitlens:views:fileHistory:cursorFollowing',
-	ViewsFileHistoryEditorFollowing = 'gitlens:views:fileHistory:editorFollowing',
-	ViewsLineHistoryEditorFollowing = 'gitlens:views:lineHistory:editorFollowing',
-	ViewsRepositoriesAutoRefresh = 'gitlens:views:repositories:autoRefresh',
 	ViewsSearchAndCompareKeepResults = 'gitlens:views:searchAndCompare:keepResults',
 	ViewsWelcomeVisible = 'gitlens:views:welcome:visible',
-	Vsls = 'gitlens:vsls',
 }
 
 export function setContext(key: ContextKeys | string, value: any) {
@@ -72,13 +63,6 @@ export function setContext(key: ContextKeys | string, value: any) {
 }
 
 export enum Colors {
-	GutterBackgroundColor = 'gitlens.gutterBackgroundColor',
-	GutterForegroundColor = 'gitlens.gutterForegroundColor',
-	GutterUncommittedForegroundColor = 'gitlens.gutterUncommittedForegroundColor',
-	TrailingLineBackgroundColor = 'gitlens.trailingLineBackgroundColor',
-	TrailingLineForegroundColor = 'gitlens.trailingLineForegroundColor',
-	LineHighlightBackgroundColor = 'gitlens.lineHighlightBackgroundColor',
-	LineHighlightOverviewRulerColor = 'gitlens.lineHighlightOverviewRulerColor',
 	ClosedPullRequestIconColor = 'gitlens.closedPullRequestIconColor',
 	OpenPullRequestIconColor = 'gitlens.openPullRequestIconColor',
 	MergedPullRequestIconColor = 'gitlens.mergedPullRequestIconColor',
@@ -94,7 +78,6 @@ export enum DocumentSchemes {
 	GitLens = 'gitlens',
 	Output = 'output',
 	PRs = 'pr',
-	Vsls = 'vsls',
 }
 
 export function getEditorIfActive(document: TextDocument): TextEditor | undefined {
@@ -254,7 +237,6 @@ export enum WorkspaceState {
 	GitCommandPaletteUsage = 'gitlens:gitComandPalette:usage',
 	StarredBranches = 'gitlens:starred:branches',
 	StarredRepositories = 'gitlens:starred:repositories',
-	ViewsRepositoriesAutoRefresh = 'gitlens:views:repositories:autoRefresh',
 	ViewsSearchAndCompareKeepResults = 'gitlens:views:searchAndCompare:keepResults',
 	ViewsSearchAndComparePinnedItems = 'gitlens:views:searchAndCompare:pinned',
 

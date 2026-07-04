@@ -1,7 +1,6 @@
 .github/**
 .vscode/**
 .vscode-clean/**
-dist/webviews/*.css
 emoji/**
 images/docs/**
 images/originals/**
@@ -22,7 +21,6 @@ AGENTS.md
 .prettierrc
 tsconfig.eslint.json
 tsconfig.json
-tsconfig.webviews.json
 tsconfig.tsbuildinfo
 webpack.config.js
 pnpm-lock.yaml

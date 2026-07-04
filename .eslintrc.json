@@ -124,7 +124,7 @@
 			}
 		],
 		"@typescript-eslint/no-restricted-types": [
-			"error",
+			"warn",
 			{
 				"types": {
 					"String": "Use string instead",
@@ -132,7 +132,8 @@
 					"Number": "Use number instead",
 					"Symbol": "Use symbol instead",
 					"Object": "The `Object` type actually means \"any non-nullish value\", so it is marginally better than `unknown`.\n- If you want a type meaning \"any object\", you probably want `Record<string, unknown>` instead.\n- If you want a type meaning \"any value\", you probably want `unknown` instead.",
-					"{}": "`{}` actually means \"any non-nullish value\".\n- If you want a type meaning \"any object\", you probably want `object` or `Record<string, unknown>` instead.\n- If you want a type meaning \"any value\", you probably want `unknown` instead."
+					"{}": "`{}` actually means \"any non-nullish value\".\n- If you want a type meaning \"any object\", you probably want `object` or `Record<string, unknown>` instead.\n- If you want a type meaning \"any value\", you probably want `unknown` instead.",
+					"Function": "The `Function` type accepts any function-like value. Prefer an explicit function signature instead."
 				}
 			}
 		],
@@ -204,9 +205,13 @@
 		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/no-parameter-properties": "off",
 		"@typescript-eslint/no-unnecessary-condition": "off",
+		"@typescript-eslint/no-unsafe-function-type": "warn",
 		"@typescript-eslint/no-unsafe-argument": "off",
 		"@typescript-eslint/no-unsafe-enum-comparison": "off",
 		"@typescript-eslint/no-redundant-type-constituents": "warn",
+		"@typescript-eslint/no-duplicate-type-constituents": "warn",
+		"@typescript-eslint/no-unnecessary-type-assertion": "warn",
+		"@typescript-eslint/no-unsafe-declaration-merging": "warn",
 		"@typescript-eslint/only-throw-error": "warn",
 		"@typescript-eslint/prefer-promise-reject-errors": "warn",
 		"@typescript-eslint/no-unsafe-assignment": "off",

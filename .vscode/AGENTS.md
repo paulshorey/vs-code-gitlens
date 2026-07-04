@@ -1,8 +1,10 @@
 # .vscode
 
-VS Code workspace config for developing the extension.
+Workspace settings for developing the extension.
 
-- **launch.json** – Debug configs: launch extension, run tests
-- **tasks.json** – Build tasks (webpack, watch)
-- **settings.json** – Editor settings (format, lint)
-- **extensions.json** – Recommended extensions for contributors
+- **launch.json** — Run / watch extension host (no webview debug config)
+- **tasks.json** — `npm: build`, `npm: watch`
+- **settings.json** — format on save, eslint
+- **extensions.json** — recommended extensions
+
+F5 uses **Run GitLens** or **Watch & Launch GitLens**; builds via webpack to `dist/gitlens.js`.

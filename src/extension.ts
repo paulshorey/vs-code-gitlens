@@ -151,7 +151,7 @@ export async function activate(context: ExtensionContext): Promise<GitLensApi | 
 	}
 
 	Logger.log(
-		`GitLens (v${gitlensVersion}${cfg.mode.active ? `, mode: ${cfg.mode.active}` : ''}) activated ${
+		`GitLens (v${gitlensVersion}) activated ${
 			GlyphChars.Dot
 		} ${Strings.getDurationMilliseconds(start)} ms`,
 	);

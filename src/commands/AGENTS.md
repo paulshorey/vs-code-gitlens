@@ -1,17 +1,24 @@
 # commands
 
-Command handlers registered through `commands.ts`.
+Handlers exported from `commands.ts` and registered via `@command()` in `common.ts`.
 
-## Important Files
+## Core compare / view
 
-- `common.ts` - command ids, shared helpers, command base class
-- `showView.ts` - routes `gitlens.show*View` commands to the matching tree view
-- `setViewsLayout.ts` - moves GitLens views between the GitLens container and Source Control
-- `compareWith.ts`, `diffWith.ts`, `diffWith*.ts` - compare and diff entry points
-- `showQuick*.ts`, `quickCommand*.ts` - quick pick driven flows
-- `git/` - git action commands (fetch, pull, push, stash, rebase, merge, etc.)
+- `showView.ts` — `gitlens.showSearchAndCompareView` only
+- `setViewsLayout.ts` — move Search & Compare between GitLens bar and SCM
+- `compareWith.ts`, `diffWith*.ts`, `openDirectoryCompare.ts` — diffs
+- `searchCommits.ts` — commit search (palette + view)
 
-## View Notes
+## Git & remotes
 
-- `gitlens.showSearchAndCompareView` should always resolve to `Container.searchAndCompareView.show()`
-- Layout changes should keep related views together to avoid split-pane confusion
+- `gitCommands.ts` + `git/` — branch, merge, rebase, stash, etc.
+- `open*OnRemote.ts`, `copy*Remote*.ts` — hosting integrations
+- `openFileAtRevision.ts` — includes **Open Blame Prior to Change** (opens prior revision at line; not gutter blame)
+
+## Quick picks
+
+- `showQuick*.ts`, `quickCommand*.ts` — history/status pickers still used from menus
+
+## Removed command families
+
+Annotation toggles, welcome/settings pages, rebase editor, Live Share, show/focus removed views, GitLens modes (`switchMode`, zen/review).

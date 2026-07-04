@@ -8,7 +8,6 @@ export function command<T extends unknown[]>(command: Omit<Command, 'arguments'>
 export * from './commands/addAuthors';
 export * from './commands/browseRepoAtRevision';
 export * from './commands/closeUnchangedFiles';
-export * from './commands/closeView';
 export * from './commands/common';
 export * from './commands/compareWith';
 export * from './commands/copyCurrentBranch';
@@ -60,4 +59,3 @@ export * from './commands/showQuickStashList';
 export * from './commands/showView';
 export * from './commands/stashApply';
 export * from './commands/stashSave';
-export * from './commands/switchMode';

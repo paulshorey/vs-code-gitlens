@@ -37,14 +37,6 @@ export interface Config {
 	integrations: {
 		enabled: boolean;
 	};
-	mode: {
-		active: string;
-		statusBar: {
-			enabled: boolean;
-			alignment: 'left' | 'right';
-		};
-	};
-	modes: Record<string, ModeConfig> | null;
 	outputLevel: TraceLevel;
 	partners: Record<
 		string,
@@ -61,9 +53,8 @@ export interface Config {
 	views: ViewsConfig;
 }
 
-export enum AnnotationsToggleMode {
-	File = 'file',
-	Window = 'window',
+export enum FileAnnotationType {
+	Blame = 'blame',
 }
 
 export interface AutolinkReference {
@@ -74,46 +65,11 @@ export interface AutolinkReference {
 	ignoreCase?: boolean;
 }
 
-export enum BlameHighlightLocations {
-	Gutter = 'gutter',
-	Line = 'line',
-	Overview = 'overview',
-}
-
 export enum BranchSorting {
 	DateDesc = 'date:desc',
 	DateAsc = 'date:asc',
 	NameAsc = 'name:asc',
 	NameDesc = 'name:desc',
-}
-
-export enum ChangesLocations {
-	Gutter = 'gutter',
-	Overview = 'overview',
-}
-
-export enum CodeLensCommand {
-	CopyRemoteCommitUrl = 'gitlens.copyRemoteCommitUrl',
-	CopyRemoteFileUrl = 'gitlens.copyRemoteFileUrl',
-	DiffWithPrevious = 'gitlens.diffWithPrevious',
-	OpenCommitOnRemote = 'gitlens.openCommitOnRemote',
-	OpenFileOnRemote = 'gitlens.openFileOnRemote',
-	RevealCommitInView = 'gitlens.revealCommitInView',
-	ShowCommitsInView = 'gitlens.showCommitsInView',
-	ShowQuickCommitDetails = 'gitlens.showQuickCommitDetails',
-	ShowQuickCommitFileDetails = 'gitlens.showQuickCommitFileDetails',
-	ShowQuickCurrentBranchHistory = 'gitlens.showQuickRepoHistory',
-	ShowQuickFileHistory = 'gitlens.showQuickFileHistory',
-	ToggleFileBlame = 'gitlens.toggleFileBlame',
-	ToggleFileChanges = 'gitlens.toggleFileChanges',
-	ToggleFileChangesOnly = 'gitlens.toggleFileChangesOnly',
-	ToggleFileHeatmap = 'gitlens.toggleFileHeatmap',
-}
-
-export enum CodeLensScopes {
-	Document = 'document',
-	Containers = 'containers',
-	Blocks = 'blocks',
 }
 
 export enum ContributorSorting {
@@ -146,12 +102,6 @@ export enum DateStyle {
 	Relative = 'relative',
 }
 
-export enum FileAnnotationType {
-	Blame = 'blame',
-	Changes = 'changes',
-	Heatmap = 'heatmap',
-}
-
 export enum GitCommandSorting {
 	Name = 'name',
 	Usage = 'usage',
@@ -166,47 +116,11 @@ export enum GravatarDefaultStyle {
 	Robot = 'robohash',
 }
 
-export enum HeatmapLocations {
-	Gutter = 'gutter',
-	Overview = 'overview',
-}
-
-export enum KeyMap {
-	Alternate = 'alternate',
-	Chorded = 'chorded',
-	None = 'none',
-}
-
-export enum StatusBarCommand {
-	CopyRemoteCommitUrl = 'gitlens.copyRemoteCommitUrl',
-	CopyRemoteFileUrl = 'gitlens.copyRemoteFileUrl',
-	DiffWithPrevious = 'gitlens.diffWithPrevious',
-	DiffWithWorking = 'gitlens.diffWithWorking',
-	OpenCommitOnRemote = 'gitlens.openCommitOnRemote',
-	OpenFileOnRemote = 'gitlens.openFileOnRemote',
-	RevealCommitInView = 'gitlens.revealCommitInView',
-	ShowCommitsInView = 'gitlens.showCommitsInView',
-	ShowQuickCommitDetails = 'gitlens.showQuickCommitDetails',
-	ShowQuickCommitFileDetails = 'gitlens.showQuickCommitFileDetails',
-	ShowQuickCurrentBranchHistory = 'gitlens.showQuickRepoHistory',
-	ShowQuickFileHistory = 'gitlens.showQuickFileHistory',
-	ToggleCodeLens = 'gitlens.toggleCodeLens',
-	ToggleFileBlame = 'gitlens.toggleFileBlame',
-	ToggleFileChanges = 'gitlens.toggleFileChanges',
-	ToggleFileChangesOnly = 'gitlens.toggleFileChangesOnly',
-	ToggleFileHeatmap = 'gitlens.toggleFileHeatmap',
-}
-
 export enum TagSorting {
 	DateDesc = 'date:desc',
 	DateAsc = 'date:asc',
 	NameAsc = 'name:asc',
 	NameDesc = 'name:desc',
-}
-
-export enum ViewBranchesLayout {
-	List = 'list',
-	Tree = 'tree',
 }
 
 export enum ViewFilesLayout {
@@ -257,94 +171,6 @@ export interface AdvancedConfig {
 	};
 	repositorySearchDepth: number;
 	similarityThreshold: number | null;
-}
-
-export interface CodeLensConfig {
-	authors: {
-		enabled: boolean;
-		command: CodeLensCommand | false;
-	};
-	enabled: boolean;
-	includeSingleLineSymbols: boolean;
-	recentChange: {
-		enabled: boolean;
-		command: CodeLensCommand | false;
-	};
-	scopes: CodeLensScopes[];
-	scopesByLanguage: CodeLensLanguageScope[] | null;
-	symbolScopes: string[];
-}
-
-export interface CodeLensLanguageScope {
-	language: string | undefined;
-	scopes?: CodeLensScopes[];
-	symbolScopes?: string[];
-}
-
-export interface MenuConfig {
-	editor:
-		| false
-		| {
-				blame: boolean;
-				clipboard: boolean;
-				compare: boolean;
-				history: boolean;
-				remote: boolean;
-		  };
-	editorGroup:
-		| false
-		| {
-				blame: boolean;
-				compare: boolean;
-		  };
-	editorTab:
-		| false
-		| {
-				clipboard: boolean;
-				compare: boolean;
-				history: boolean;
-				remote: boolean;
-		  };
-	explorer:
-		| false
-		| {
-				clipboard: boolean;
-				compare: boolean;
-				history: boolean;
-				remote: boolean;
-		  };
-	scm:
-		| false
-		| {
-				authors: boolean;
-		  };
-	scmGroupInline:
-		| false
-		| {
-				stash: boolean;
-		  };
-	scmGroup:
-		| false
-		| {
-				compare: boolean;
-				openClose: boolean;
-				stash: boolean;
-		  };
-	scmItem:
-		| false
-		| {
-				clipboard: boolean;
-				compare: boolean;
-				history: boolean;
-				remote: boolean;
-				stash: boolean;
-		  };
-}
-
-export interface ModeConfig {
-	name: string;
-	statusBarItemName?: string;
-	description?: string;
 }
 
 export type RemotesConfig =
