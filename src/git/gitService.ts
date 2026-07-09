@@ -731,10 +731,12 @@ export class GitService implements Disposable {
 		if (repositories == null) {
 			repositories = await this.getOrderedRepositories();
 		}
-		if (repositories.length === 0) return;
+		const repositoriesToFetch = repositories;
+		if (repositoriesToFetch.length === 0) return;
 
-		if (repositories.length === 1) {
-			await repositories[0].fetch(options);
+		const [repository] = repositoriesToFetch;
+		if (repositoriesToFetch.length === 1 && repository != null) {
+			await repository.fetch(options);
 
 			return;
 		}
@@ -742,9 +744,9 @@ export class GitService implements Disposable {
 		await window.withProgress(
 			{
 				location: ProgressLocation.Notification,
-				title: `Fetching ${repositories.length} repositories`,
+				title: `Fetching ${repositoriesToFetch.length} repositories`,
 			},
-			() => Promise.all(repositories.map(r => r.fetch({ progress: false, ...options }))),
+			() => Promise.all(repositoriesToFetch.map(r => r.fetch({ progress: false, ...options }))),
 		);
 	}
 
@@ -760,10 +762,12 @@ export class GitService implements Disposable {
 		if (repositories == null) {
 			repositories = await this.getOrderedRepositories();
 		}
-		if (repositories.length === 0) return;
+		const repositoriesToPull = repositories;
+		if (repositoriesToPull.length === 0) return;
 
-		if (repositories.length === 1) {
-			await repositories[0].pull(options);
+		const [repository] = repositoriesToPull;
+		if (repositoriesToPull.length === 1 && repository != null) {
+			await repository.pull(options);
 
 			return;
 		}
@@ -771,9 +775,9 @@ export class GitService implements Disposable {
 		await window.withProgress(
 			{
 				location: ProgressLocation.Notification,
-				title: `Pulling ${repositories.length} repositories`,
+				title: `Pulling ${repositoriesToPull.length} repositories`,
 			},
-			() => Promise.all(repositories.map(r => r.pull({ progress: false, ...options }))),
+			() => Promise.all(repositoriesToPull.map(r => r.pull({ progress: false, ...options }))),
 		);
 	}
 
@@ -796,10 +800,12 @@ export class GitService implements Disposable {
 		if (repositories == null) {
 			repositories = await this.getOrderedRepositories();
 		}
-		if (repositories.length === 0) return;
+		const repositoriesToPush = repositories;
+		if (repositoriesToPush.length === 0) return;
 
-		if (repositories.length === 1) {
-			await repositories[0].push(options);
+		const [repository] = repositoriesToPush;
+		if (repositoriesToPush.length === 1 && repository != null) {
+			await repository.push(options);
 
 			return;
 		}
@@ -807,9 +813,9 @@ export class GitService implements Disposable {
 		await window.withProgress(
 			{
 				location: ProgressLocation.Notification,
-				title: `Pushing ${repositories.length} repositories`,
+				title: `Pushing ${repositoriesToPush.length} repositories`,
 			},
-			() => Promise.all(repositories.map(r => r.push({ progress: false, ...options }))),
+			() => Promise.all(repositoriesToPush.map(r => r.push({ progress: false, ...options }))),
 		);
 	}
 

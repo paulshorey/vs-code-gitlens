@@ -28,10 +28,10 @@ export class DiffWithRevisionCommand extends ActiveEditorCommand {
 
 		const gitUri = await GitUri.fromUri(uri);
 
-		args = { ...args };
-		if (args.line == null) {
-			args.line = editor?.selection.active.line ?? 0;
-		}
+		const commandArgs: DiffWithRevisionCommandArgs = {
+			...args,
+			line: args?.line ?? editor?.selection.active.line ?? 0,
+		};
 
 		try {
 			const log = Container.git
@@ -65,9 +65,9 @@ export class DiffWithRevisionCommand extends ActiveEditorCommand {
 							rhs: {
 								sha: '',
 								uri: gitUri,
-							},
-							line: args.line,
-							showOptions: args.showOptions,
+								},
+								line: commandArgs.line,
+								showOptions: commandArgs.showOptions,
 						}));
 					},
 					showOtherReferences: CommandQuickPickItem.fromCommand(
@@ -87,9 +87,9 @@ export class DiffWithRevisionCommand extends ActiveEditorCommand {
 				rhs: {
 					sha: '',
 					uri: gitUri,
-				},
-				line: args.line,
-				showOptions: args.showOptions,
+					},
+					line: commandArgs.line,
+					showOptions: commandArgs.showOptions,
 			}));
 		} catch (ex) {
 			Logger.error(ex, 'DiffWithRevisionCommand');

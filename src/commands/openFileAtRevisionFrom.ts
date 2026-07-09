@@ -34,12 +34,12 @@ export class OpenFileAtRevisionFromCommand extends ActiveEditorCommand {
 			return;
 		}
 
-		args = { ...args };
-		if (args.line == null) {
-			args.line = editor?.selection.active.line ?? 0;
-		}
+		const commandArgs: OpenFileAtRevisionFromCommandArgs = {
+			...args,
+			line: args?.line ?? editor?.selection.active.line ?? 0,
+		};
 
-		if (args.reference == null) {
+		if (commandArgs.reference == null) {
 			const title = `Open File at Branch or Tag${Strings.pad(GlyphChars.Dot, 2, 2)}`;
 			const pick = await ReferencePicker.show(
 				gitUri.repoPath,
@@ -54,8 +54,8 @@ export class OpenFileAtRevisionFromCommand extends ActiveEditorCommand {
 							void (await GitActions.Commit.openFileAtRevision(
 								GitUri.toRevisionUri(item.ref, gitUri.fsPath, gitUri.repoPath!),
 								{
-									annotationType: args.annotationType,
-									line: args.line,
+									annotationType: commandArgs.annotationType,
+									line: commandArgs.line,
 									preserveFocus: true,
 									preview: false,
 								},
@@ -66,15 +66,15 @@ export class OpenFileAtRevisionFromCommand extends ActiveEditorCommand {
 			);
 			if (pick == null) return;
 
-			args.reference = pick;
+			commandArgs.reference = pick;
 		}
 
 		void (await GitActions.Commit.openFileAtRevision(
-			GitUri.toRevisionUri(args.reference.ref, gitUri.fsPath, gitUri.repoPath),
+			GitUri.toRevisionUri(commandArgs.reference.ref, gitUri.fsPath, gitUri.repoPath),
 			{
-				annotationType: args.annotationType,
-				line: args.line,
-				...args.showOptions,
+				annotationType: commandArgs.annotationType,
+				line: commandArgs.line,
+				...commandArgs.showOptions,
 			},
 		));
 	}

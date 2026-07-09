@@ -75,13 +75,13 @@ export class OpenFileAtRevisionCommand extends ActiveEditorCommand {
 
 		const gitUri = await GitUri.fromUri(uri);
 
-		args = { ...args };
-		if (args.line == null) {
-			args.line = editor?.selection.active.line ?? 0;
-		}
+		const commandArgs: OpenFileAtRevisionCommandArgs = {
+			...args,
+			line: args?.line ?? editor?.selection.active.line ?? 0,
+		};
 
 		try {
-			if (args.revisionUri == null) {
+			if (commandArgs.revisionUri == null) {
 				const log = Container.git
 					.getLogForFile(gitUri.repoPath, gitUri.fsPath)
 					.then(
@@ -93,7 +93,7 @@ export class OpenFileAtRevisionCommand extends ActiveEditorCommand {
 					);
 
 				const title = `Open ${
-					args.annotationType === FileAnnotationType.Blame ? 'Blame' : 'File'
+					commandArgs.annotationType === FileAnnotationType.Blame ? 'Blame' : 'File'
 				} at Revision${Strings.pad(GlyphChars.Dot, 2, 2)}`;
 				const pick = await CommitPicker.show(
 					log,
@@ -102,15 +102,15 @@ export class OpenFileAtRevisionCommand extends ActiveEditorCommand {
 						truncateTo: quickPickTitleMaxChars - title.length,
 					})}`,
 					`Choose a commit to ${
-						args.annotationType === FileAnnotationType.Blame ? 'blame' : 'open'
+						commandArgs.annotationType === FileAnnotationType.Blame ? 'blame' : 'open'
 					} the file revision from`,
 					{
 						picked: gitUri.sha,
 						keys: ['right', 'alt+right', 'ctrl+right'],
 						onDidPressKey: async (key, item) => {
 							void (await GitActions.Commit.openFileAtRevision(item.item.uri.fsPath, item.item, {
-								annotationType: args.annotationType,
-								line: args.line,
+								annotationType: commandArgs.annotationType,
+								line: commandArgs.line,
 								preserveFocus: true,
 								preview: false,
 							}));
@@ -124,18 +124,18 @@ export class OpenFileAtRevisionCommand extends ActiveEditorCommand {
 				if (pick == null) return;
 
 				void (await GitActions.Commit.openFileAtRevision(pick.fileName, pick, {
-					annotationType: args.annotationType,
-					line: args.line,
-					...args.showOptions,
+					annotationType: commandArgs.annotationType,
+					line: commandArgs.line,
+					...commandArgs.showOptions,
 				}));
 
 				return;
 			}
 
-			void (await GitActions.Commit.openFileAtRevision(args.revisionUri, {
-				annotationType: args.annotationType,
-				line: args.line,
-				...args.showOptions,
+			void (await GitActions.Commit.openFileAtRevision(commandArgs.revisionUri, {
+				annotationType: commandArgs.annotationType,
+				line: commandArgs.line,
+				...commandArgs.showOptions,
 			}));
 		} catch (ex) {
 			Logger.error(ex, 'OpenFileAtRevisionCommand');

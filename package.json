@@ -2,7 +2,7 @@
 	"name": "gitlens",
 	"displayName": "Gitlens lower version for friendly license",
 	"description": "(PaulShorey Modified) Git compare and search for VS Code — compare references, browse changed files, and open diffs in the editor.",
-	"version": "0.1.27",
+	"version": "0.1.29",
 	"author": {
 		"name": "Paul Shorey",
 		"email": "hello@paulshorey.com"
