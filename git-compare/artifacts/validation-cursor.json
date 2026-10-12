@@ -1,0 +1,20 @@
+{
+  "editor": "Cursor",
+  "version": "1.128.0",
+  "checks": [
+    "cold activation",
+    "core command registration",
+    "view focus",
+    "HEAD → working tree including untracked",
+    "native diffs for modified, added, deleted, renamed files",
+    "filesystem changes automatically refresh the comparison",
+    "pinning and clearing preserve pinned comparisons",
+    "swapping reverses additions",
+    "refresh",
+    "remove comparison"
+  ],
+  "success": true,
+  "testedAt": "2026-10-08T16:35:20.867Z",
+  "source": "packaged VSIX",
+  "sha256": "4f8feaa3c105d7e6ddda78184aae1ce6acddaadfad527fd9966adcd28d892a0e"
+}

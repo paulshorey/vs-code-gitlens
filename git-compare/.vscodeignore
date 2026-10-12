@@ -1,0 +1,16 @@
+src/**
+test/**
+scripts/**
+.vscode/**
+node_modules/**
+.test-dist/**
+.editor-test/**
+artifacts/**
+.gitignore
+.npmrc
+AGENTS.md
+.prettierignore
+.prettierrc.json
+package-lock.json
+tsconfig.json
+**/*.map

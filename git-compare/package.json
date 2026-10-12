@@ -1,0 +1,365 @@
+{
+  "name": "git-compare",
+  "displayName": "Git Compare",
+  "description": "Compare Git references and local changes in a focused file tree. Open native editor diffs in VS Code and Cursor.",
+  "version": "1.0.0",
+  "publisher": "PaulShorey",
+  "author": {
+    "name": "Paul Shorey"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulshorey/gitlens.git",
+    "directory": "git-compare"
+  },
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "SCM Providers"
+  ],
+  "keywords": [
+    "git",
+    "compare",
+    "diff",
+    "branches",
+    "cursor"
+  ],
+  "icon": "resources/icon.png",
+  "main": "./dist/extension.cjs",
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onFileSystem:gitcompare-revision"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": false,
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Git Compare reads repositories with the Git executable and repository configuration."
+    }
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "tsc --noEmit",
+    "build": "npm run check && node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "test": "npm run check && node scripts/test.mjs",
+    "test:editor": "npm run build && node scripts/editor-test.mjs",
+    "package": "npm run test && vsce package --no-dependencies --out artifacts/git-compare-1.0.0.vsix",
+    "vscode:prepublish": "npm run build"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitcompare.compare",
+        "title": "Compare References…",
+        "category": "Git Compare",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "gitcompare.focus",
+        "title": "Focus Comparisons",
+        "category": "Git Compare"
+      },
+      {
+        "command": "gitcompare.compareFolder",
+        "title": "Compare Folder…",
+        "category": "Git Compare"
+      },
+      {
+        "command": "gitcompare.refresh",
+        "title": "Refresh Comparisons",
+        "category": "Git Compare",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitcompare.swap",
+        "title": "Swap Base and Target",
+        "category": "Git Compare",
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "gitcompare.edit",
+        "title": "Change References…",
+        "category": "Git Compare",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "gitcompare.pin",
+        "title": "Pin Comparison",
+        "category": "Git Compare",
+        "icon": "$(pin)"
+      },
+      {
+        "command": "gitcompare.unpin",
+        "title": "Unpin Comparison",
+        "category": "Git Compare",
+        "icon": "$(pinned)"
+      },
+      {
+        "command": "gitcompare.remove",
+        "title": "Remove Comparison",
+        "category": "Git Compare",
+        "icon": "$(close)"
+      },
+      {
+        "command": "gitcompare.clear",
+        "title": "Clear Unpinned Comparisons",
+        "category": "Git Compare",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "gitcompare.filter",
+        "title": "Filter Changed Files…",
+        "category": "Git Compare",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "gitcompare.layout",
+        "title": "Toggle Tree / List",
+        "category": "Git Compare",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "gitcompare.openDiff",
+        "title": "Open Changes",
+        "category": "Git Compare"
+      },
+      {
+        "command": "gitcompare.openFile",
+        "title": "Open Working File",
+        "category": "Git Compare",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "gitcompare.openAll",
+        "title": "Open All Changes",
+        "category": "Git Compare",
+        "icon": "$(diff-multiple)"
+      },
+      {
+        "command": "gitcompare.copyPath",
+        "title": "Copy Relative Path",
+        "category": "Git Compare",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "gitcompare.showOutput",
+        "title": "Show Git Compare Output",
+        "category": "Git Compare"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitcompare",
+          "title": "Git Compare",
+          "icon": "resources/compare.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitcompare": [
+        {
+          "id": "gitcompare.comparisons",
+          "name": "Comparisons",
+          "contextualTitle": "Git Compare",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "gitcompare.comparisons",
+        "contents": "Compare two Git references, or a reference with your local changes.\n[Compare References…](command:gitcompare.compare)\n[Compare Folder…](command:gitcompare.compareFolder)",
+        "when": "isWorkspaceTrusted"
+      },
+      {
+        "view": "gitcompare.comparisons",
+        "contents": "Trust this workspace to compare its Git references.",
+        "when": "!isWorkspaceTrusted"
+      }
+    ],
+    "configuration": {
+      "title": "Git Compare",
+      "properties": {
+        "gitcompare.files.layout": {
+          "type": "string",
+          "enum": [
+            "tree",
+            "list"
+          ],
+          "default": "tree",
+          "description": "Display changed files in folders or as a flat list."
+        },
+        "gitcompare.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Refresh local comparisons when files are saved or repository state changes."
+        },
+        "gitcompare.includeUntracked": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include non-ignored untracked files in working-tree comparisons."
+        },
+        "gitcompare.keepComparisons": {
+          "type": "boolean",
+          "default": true,
+          "description": "Restore comparisons when reopening this workspace. Pinned comparisons are always restored."
+        },
+        "gitcompare.gitPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Optional path to Git. Otherwise use the editor’s Git executable or Git on PATH."
+        }
+      }
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitcompare.compare",
+          "when": "view == gitcompare.comparisons",
+          "group": "navigation@1"
+        },
+        {
+          "command": "gitcompare.refresh",
+          "when": "view == gitcompare.comparisons",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitcompare.layout",
+          "when": "view == gitcompare.comparisons",
+          "group": "navigation@3"
+        },
+        {
+          "command": "gitcompare.clear",
+          "when": "view == gitcompare.comparisons",
+          "group": "2_manage@1"
+        },
+        {
+          "command": "gitcompare.showOutput",
+          "when": "view == gitcompare.comparisons",
+          "group": "2_manage@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gitcompare.swap",
+          "when": "view == gitcompare.comparisons && viewItem =~ /^comparison/",
+          "group": "inline@1"
+        },
+        {
+          "command": "gitcompare.edit",
+          "when": "view == gitcompare.comparisons && viewItem =~ /^comparison/",
+          "group": "1_comparison@1"
+        },
+        {
+          "command": "gitcompare.filter",
+          "when": "view == gitcompare.comparisons && viewItem =~ /^comparison/",
+          "group": "1_comparison@2"
+        },
+        {
+          "command": "gitcompare.openAll",
+          "when": "view == gitcompare.comparisons && viewItem =~ /^comparison/",
+          "group": "1_comparison@3"
+        },
+        {
+          "command": "gitcompare.remove",
+          "when": "view == gitcompare.comparisons && viewItem =~ /^comparison/",
+          "group": "inline@2"
+        },
+        {
+          "command": "gitcompare.pin",
+          "when": "view == gitcompare.comparisons && viewItem == comparison",
+          "group": "2_manage@1"
+        },
+        {
+          "command": "gitcompare.unpin",
+          "when": "view == gitcompare.comparisons && viewItem == comparisonPinned",
+          "group": "2_manage@1"
+        },
+        {
+          "command": "gitcompare.openDiff",
+          "when": "view == gitcompare.comparisons && viewItem == changedFile",
+          "group": "1_file@1"
+        },
+        {
+          "command": "gitcompare.openFile",
+          "when": "view == gitcompare.comparisons && viewItem == changedFile",
+          "group": "1_file@2"
+        },
+        {
+          "command": "gitcompare.copyPath",
+          "when": "view == gitcompare.comparisons && viewItem == changedFile",
+          "group": "1_file@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "gitcompare.swap",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.edit",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.pin",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.unpin",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.remove",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.openDiff",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.openFile",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.openAll",
+          "when": "false"
+        },
+        {
+          "command": "gitcompare.copyPath",
+          "when": "false"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "gitcompare.compareFolder",
+          "when": "explorerResourceIsFolder && resourceScheme == file",
+          "group": "gitcompare@1"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "gitcompare.focus",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/vscode": "1.96.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.0.0",
+    "esbuild": "0.28.2",
+    "prettier": "3.9.9",
+    "typescript": "7.0.2"
+  }
+}
