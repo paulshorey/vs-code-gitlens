@@ -1,5 +1,9 @@
 # GitLens (PaulShorey fork)
 
+The independent replacement lives in **`git-compare/`**. It has its own manifest,
+dependencies, build, tests, and `AGENTS.md`; it imports no legacy source. Build and
+package it from that folder. The notes below describe the retained legacy fork.
+
 VS Code extension forked from [eamodio/vscode-gitlens](https://github.com/eamodio/vscode-gitlens), scoped to **Search & Compare** — compare git references, list changed files, open diffs in the editor.
 
 ## Key paths
