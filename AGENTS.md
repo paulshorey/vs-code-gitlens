@@ -1,49 +1,35 @@
-# GitLens (PaulShorey fork)
+# Project: Git Compare
 
-The independent replacement lives in **`git-compare/`**. It has its own manifest,
-dependencies, build, tests, and `AGENTS.md`; it imports no legacy source. Build and
-package it from that folder. The notes below describe the retained legacy fork.
+The active independent extension is [git-compare/](git-compare/), with its own
+manifest, dependencies, build, tests, and [agent guide](git-compare/AGENTS.md).
+It imports no legacy GitLens source; build and package from that folder.
 
-VS Code extension forked from [eamodio/vscode-gitlens](https://github.com/eamodio/vscode-gitlens), scoped to **Search & Compare** — compare git references, list changed files, open diffs in the editor.
+## Active extension
 
-## Key paths
+Use stable VS Code APIs and the `gitcompare` namespace; keep Git logic independent
+of VS Code. Comparisons are read-only. Preserve NUL-delimited paths, explicit
+endpoint direction, and actionable errors. Run `npm ci`, `npm test`, `npm run build`,
+and `npm run package` in `git-compare/`; its guide covers installed-editor tests.
 
-| Path | Purpose |
-| --- | --- |
-| `package.json` | Manifest: one view, commands, menus, settings (~4k lines after pruning) |
-| `src/extension.ts` | Activation, git checks, command registration |
-| `src/container.ts` | Git service, Search & Compare view, trackers, autolinks |
-| `src/views/searchAndCompareView.ts` | Primary feature — compare/search tree |
-| `src/config.ts` | Typed settings surface (must match `package.json` keys the code reads) |
-| `scripts/prune-package-json.mjs` | Remove dead commands/menus after feature removal |
-| `scripts/cleanup-package-json.mjs` | Modes removal, menu `when` cleanup, section renames |
+## Retained legacy fork
 
-## Removed (do not restore without re-adding handlers)
+Root `src/` and `package.json` belong to the pruned GitLens Search & Compare fork.
+Start legacy work in `src/views/searchAndCompareView.ts`, `src/container.ts`, and
+`src/config.ts`; settings keys must match the manifest. Prune/cleanup helpers live
+in `scripts/`. Legacy build uses `npm run build` / `npm run bundle` and the root
+Artifactory configuration (`refresh-jfrog` for 401 errors).
 
-- Editor decorations: blame, code lens, hovers, status bar blame, gutter heatmap/changes
-- Webviews: welcome, settings, rebase editor
-- Live Share (`vsls`), standalone `github/` subsystem (GitHub API lives in `git/remotes/githubApi.ts`)
-- All sidebar views except **Search & Compare**
-- GitLens **modes** (zen/review) — settings toggles had no effect after decoration removal
+Do not restore removed decorations, webviews, modes, Live Share, or other sidebar
+views without their handlers. Keep folder guides aligned when pruning features.
 
-## Search & Compare flow
+# Research and report
 
-1. User runs **Compare References** (or welcome link in empty view)
-2. Pick repository (if multi-root), then reference A, then reference B
-3. Tree lists changed files; click opens diff in editor (green/red)
-4. User can pin comparisons, swap sides, filter files, add more repos/refs
+If something went wrong, stop and report back. Include all info, data, and logs.
+If unsure about something, research, search the web, find latest techniques and best practices.
 
-Default location: GitLens activity bar (`gitlens` container). User may drag the view to the panel.
+# Next steps
 
-## Build
+Consider what was recently done, what's in progress, and how it contributes to the goal.
+Decide and recommend what to do next.
 
-```bash
-npm install          # uses Artifactory via .npmrc; run refresh-jfrog if 401
-npm run build        # dev webpack + typecheck
-npm run bundle       # production (vscode:prepublish)
-npx vsce package --no-dependencies
-```
-
-## Docs for agents
-
-Keep folder-level `AGENTS.md` files short and aligned with the code. After removing features, run the prune scripts and update docs in the same change.
+# Goal: Make repository and reference comparisons clear, fast, and read-only
