@@ -6,3 +6,4 @@ images/settings
 tsconfig.tsbuildinfo
 out
 .DS_Store
+**/.DS_Store
